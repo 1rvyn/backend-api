@@ -6,6 +6,7 @@ import (
 	"authserver/utils"
 	"bytes"
 	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
@@ -43,9 +44,19 @@ func main() {
 
 	setupRoutes(app)
 
-	err := app.Listen(":8080")
-	if err != nil {
-		panic(err)
+	//err := app.Listen(":8080")
+	//if err != nil {
+	//	panic(err)
+	//}
+
+	go func() {
+		if err := http.ListenAndServe("localhost:8080", nil); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+	if err := app.Listen(":8080"); err != nil {
+		fmt.Println(err)
 	}
 
 }
