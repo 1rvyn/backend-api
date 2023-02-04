@@ -50,14 +50,10 @@ func main() {
 	//}
 
 	go func() {
-		if err := http.ListenAndServe("localhost:8080", nil); err != nil {
-			fmt.Println(err)
-		}
+		http.ListenAndServe("localhost:6060", nil)
 	}()
-
-	if err := app.Listen(":8080"); err != nil {
-		fmt.Println(err)
-	}
+	// Your existing fiber web app code
+	app.Listen(":8080")
 
 }
 
