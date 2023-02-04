@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	_ "net/http/pprof"
+
 	"github.com/golang-jwt/jwt"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
