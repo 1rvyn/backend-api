@@ -104,7 +104,7 @@ func Account(c *fiber.Ctx) error {
 
 func Code(c *fiber.Ctx) error {
 
-	var data map[string][]byte
+	var data map[string]string
 
 	if err := c.BodyParser(&data); err != nil {
 		return err

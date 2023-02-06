@@ -9,5 +9,5 @@ type Error struct {
 	CreatedAt  time.Time `json:"created_at"`
 	User       string    `json:"user"`
 	IP         string    `json:"ip"`
-	Submission []byte    `json:"submission"`
+	Submission string    `json:"submission"`
 }
