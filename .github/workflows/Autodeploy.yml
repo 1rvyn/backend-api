@@ -1,0 +1,22 @@
+name: Autodeploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Connect to VPS
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ env.VPS_IP }}
+        username: ${{ env.VPS_USER }}
+        password: ${{ env.VPS_PASSWORD }}
+        script: |
+          echo Pulling latest changes from Git
+          cd /root/backend-api
+          git pull
