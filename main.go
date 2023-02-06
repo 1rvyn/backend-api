@@ -6,14 +6,12 @@ import (
 	"authserver/utils"
 	"bytes"
 	"fmt"
-	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	_ "net/http/pprof"
 
 	"github.com/golang-jwt/jwt"
 	_ "github.com/lib/pq"
@@ -49,11 +47,15 @@ func main() {
 	//	panic(err)
 	//}
 
-	go func() {
-		http.ListenAndServe("localhost:6060", nil)
-	}()
+	//go func() { // for testing using pprof - import _ "net/http/pprof"
+	//	http.ListenAndServe("localhost:6060", nil)
+	//}()
+
 	// Your existing fiber web app code
-	app.Listen(":8080")
+	err := app.Listen(":8080")
+	if err != nil {
+		return
+	}
 
 }
 
@@ -185,6 +187,25 @@ func Login(c *fiber.Ctx) error {
 	var loginData map[string]string
 	// print the users cookie
 	fmt.Println("the cookie is :", c.Cookies("jwt"))
+	// check to see if the user is already logged in
+
+	// get the users cookie
+	cookie := c.Cookies("jwt")
+	if cookie != "" {
+		// check if the cookie is in redis
+		// if it is, return the user
+		session, err := database.Redis.GetHMap(cookie)
+		if err != nil {
+			return err
+		}
+
+		if session != nil {
+			// we must update their cookie expiry to a new time
+			fmt.Println("the session was returned, we should do some stuff inside here ^_^ :!:!!:")
+		}
+		fmt.Println("\n The user is already logged in and their session is: ", session)
+		// they must have a cached session to get a result
+	}
 
 	if err := c.BodyParser(&loginData); err != nil {
 		return err
@@ -246,8 +267,6 @@ func Login(c *fiber.Ctx) error {
 
 			//fmt.Println("\nthe cookie VALUE we just created is :", cookie.Value)
 
-			fmt.Println("\n The full cookie is: ", cookie)
-
 			// make new token to represent the session
 			sessionToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
 				Issuer:    strconv.Itoa(int(user.ID)),
@@ -277,6 +296,8 @@ func Login(c *fiber.Ctx) error {
 			err = database.Redis.PutHMap(token, session)
 			if err != nil {
 				return err
+			} else {
+				fmt.Println("\nsuccessfully saved session to redis")
 			}
 
 			return c.JSON(fiber.Map{
