@@ -112,6 +112,7 @@ func Code(c *fiber.Ctx) error {
 	}
 
 	cookie := c.Cookies("jwt")
+	fmt.Println("\n the in the cookie at submission are : ", cookie)
 
 	claims, err := utils.GetClaimsFromCookie(cookie, SecretKey)
 	if err != nil {
@@ -119,7 +120,7 @@ func Code(c *fiber.Ctx) error {
 		return err
 	} // validate the cookie
 
-	fmt.Println("\n the in the cookie at submission are : ", claims)
+	fmt.Println("\n the claims at submission are : ", claims)
 
 	// TODO: validate vs the redis store to see if valid and or cookie was manipulated
 	if cookie == "dont run yet" {
