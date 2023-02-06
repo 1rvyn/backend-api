@@ -13,9 +13,9 @@ jobs:
     - name: Connect to VPS
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ env.VPS_IP }}
-        username: ${{ env.VPS_USER }}
-        password: ${{ env.VPS_PASSWORD }}
+        host: ${{ secrets.VPS_IP }}
+        username: ${{ secrets.VPS_USER }}
+        password: ${{ secrets.VPS_PASSWORD }}
         script: |
           echo Pulling latest changes from Git
           cd /root/backend-api
