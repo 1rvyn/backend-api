@@ -106,62 +106,67 @@ func Code(c *fiber.Ctx) error {
 	// save submission for user
 	// run their submission and return the output
 
-	cookie := c.Cookies("jwt")
-
-	fmt.Println("the cookie is :", cookie)
-
-	//// search the cookie value in redis to get the session
-	//session, err := database.Redis.GetHMap(cookie)
-	//if err != nil {
-	//	return err
-	//}
-
-	// validate the cookie
-	claims, err := utils.GetClaimsFromCookie(cookie, SecretKey)
-	if err != nil {
-		// handle error
-		return err
-	} // validate the cookie
-
-	fmt.Println("\n the claims at submission are : ", claims)
-
-	var data map[string]string
-
-	if err := c.BodyParser(&data); err != nil {
-		return err
-	}
-
-	// TODO: validate vs the redis store to see if valid and or cookie was manipulated
-	if cookie == "dont run yet" {
-		return c.SendStatus(401)
-	} else {
-		session, err := database.Redis.GetHMap(cookie)
-		if err != nil {
-			return err
-		}
-
-		// check to see if the session is valid - if not, return 401
-
-		submission := models.Submission{
-			Code:   data["codeitem"],
-			UserID: session["userID"],
-			IP:     c.IP(),
-		}
-
-		database.Database.Db.Create(&submission)
-
-		// they must have a redis session to get a result
-	}
-
-	fmt.Println("the submission was saved to the database")
-
-	//TODO: right now this saves a submission if the code is unique -
-	// but it should save a submission if tests it passes are unique
-
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "code was submitted",
 	})
+	//
+	//cookie := c.Cookies("jwt")
+	//
+	//fmt.Println("the cookie is :", cookie)
+	//
+	////// search the cookie value in redis to get the session
+	////session, err := database.Redis.GetHMap(cookie)
+	////if err != nil {
+	////	return err
+	////}
+	//
+	//// validate the cookie
+	//claims, err := utils.GetClaimsFromCookie(cookie, SecretKey)
+	//if err != nil {
+	//	// handle error
+	//	return err
+	//} // validate the cookie
+	//
+	//fmt.Println("\n the claims at submission are : ", claims)
+	//
+	//var data map[string]string
+	//
+	//if err := c.BodyParser(&data); err != nil {
+	//	return err
+	//}
+	//
+	//// TODO: validate vs the redis store to see if valid and or cookie was manipulated
+	//if cookie == "dont run yet" {
+	//	return c.SendStatus(401)
+	//} else {
+	//	session, err := database.Redis.GetHMap(cookie)
+	//	if err != nil {
+	//		return err
+	//	}
+	//
+	//	// check to see if the session is valid - if not, return 401
+	//
+	//	submission := models.Submission{
+	//		Code:   data["codeitem"],
+	//		UserID: session["userID"],
+	//		IP:     c.IP(),
+	//	}
+	//
+	//	database.Database.Db.Create(&submission)
+	//
+	//	// they must have a redis session to get a result
+	//}
+	//
+	//fmt.Println("the submission was saved to the database")
+	//
+	////TODO: right now this saves a submission if the code is unique -
+	//// but it should save a submission if tests it passes are unique
+	//
+	//return c.JSON(fiber.Map{
+	//	"status":  "success",
+	//	"message": "code was submitted",
+	//})
 }
 
 func Status(c *fiber.Ctx) error {
