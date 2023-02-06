@@ -90,3 +90,13 @@ func (r *RedisInstance) GetHMap(key string) (map[string]string, error) {
 	//fmt.Printf("Successfully retrieved value %v for key %s\n", value, key)
 	return value, nil
 }
+
+func (r *RedisInstance) DeleteHMap(key string) error {
+	err := r.Client.HDel(ctx, key).Err()
+	if err != nil {
+		fmt.Println("Error deleting |HashMap| from Redis", err)
+		return err
+	}
+
+	return nil
+}

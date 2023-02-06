@@ -412,7 +412,17 @@ func Logout(c *fiber.Ctx) error {
 	// delete the cookie
 	fmt.Println("\nlogout was called")
 
+	rcookie := c.Cookies("jwt")
+
 	fmt.Println("\nthe cookie is :", c.Cookies("jwt"))
+	// remove the session from redis
+
+	err := database.Redis.DeleteHMap(rcookie)
+	if err != nil {
+		return err
+	} else {
+		fmt.Println("\nSuccessfully deleted the session from redis")
+	}
 
 	// set the cookie to expire
 	cookie := fiber.Cookie{
@@ -426,8 +436,6 @@ func Logout(c *fiber.Ctx) error {
 		Domain:   ".irvyn.xyz",
 	}
 	c.Cookie(&cookie) // this returns a cookie with the date that is expired
-
-	// delete the session in redis
 
 	return c.JSON(fiber.Map{
 		"message": "successfully logged out",
