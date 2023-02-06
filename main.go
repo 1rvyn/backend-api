@@ -268,6 +268,7 @@ func Login(c *fiber.Ctx) error {
 			session["ip"] = c.Get("X-Forwarded-For")
 			session["agent"] = c.Get("User-Agent")
 			session["role"] = user.UserRole
+			session["created_at"] = time.Now().Format("2006-01-02 15:04:05")
 
 			// save the token in redis with their userID as their key
 			err = database.Redis.PutHMap(token, session)
