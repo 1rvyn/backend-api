@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -38,8 +39,6 @@ func ConnectRedis() {
 
 	Redis = RedisInstance{Client: client}
 
-	//defer Redis.Client.Close()
-
 }
 
 func (r *RedisInstance) Put(key string, value string) error {
@@ -69,6 +68,12 @@ func (r *RedisInstance) PutHMap(key string, value map[string]interface{}) error 
 	err := r.Client.HMSet(ctx, key, value).Err()
 	if err != nil {
 		fmt.Println("Error putting |HashMap| in Redis", err)
+		return err
+	}
+
+	err = r.Client.Expire(ctx, key, 24*time.Hour).Err() // Set TTL to 24 hours
+	if err != nil {
+		fmt.Println("Error setting |TTL| in Redis", err)
 		return err
 	}
 	//fmt.Printf("Successfully added %s with value %v\n", key, value)
