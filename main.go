@@ -105,15 +105,18 @@ func Account(c *fiber.Ctx) error {
 func Code(c *fiber.Ctx) error {
 	// save submission for user
 	// run their submission and return the output
-	var data map[string]string
-
-	if err := c.BodyParser(&data); err != nil {
-		return err
-	}
 
 	cookie := c.Cookies("jwt")
-	fmt.Println("\n the in the cookie at submission are : ", cookie)
 
+	fmt.Println("the cookie is :", cookie)
+
+	//// search the cookie value in redis to get the session
+	//session, err := database.Redis.GetHMap(cookie)
+	//if err != nil {
+	//	return err
+	//}
+
+	// validate the cookie
 	claims, err := utils.GetClaimsFromCookie(cookie, SecretKey)
 	if err != nil {
 		// handle error
@@ -121,6 +124,12 @@ func Code(c *fiber.Ctx) error {
 	} // validate the cookie
 
 	fmt.Println("\n the claims at submission are : ", claims)
+
+	var data map[string]string
+
+	if err := c.BodyParser(&data); err != nil {
+		return err
+	}
 
 	// TODO: validate vs the redis store to see if valid and or cookie was manipulated
 	if cookie == "dont run yet" {
