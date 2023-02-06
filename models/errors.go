@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/golang-jwt/jwt"
 	"time"
 )
 
@@ -11,6 +10,5 @@ type Error struct {
 	User       string      `json:"user"`
 	IP         string      `json:"ip"`
 	Submission []byte      `json:"submission"`
-	Claims     jwt.Claims  `json:"claims"`
 	Session    interface{} `json:"session"`
 }

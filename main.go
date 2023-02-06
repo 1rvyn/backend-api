@@ -146,7 +146,6 @@ func Code(c *fiber.Ctx) error {
 			User:       session["userID"],
 			Submission: data["codeitem"],
 			IP:         c.Get("X-Forwarded-For"),
-			Claims:     claims,
 			Session:    session,
 		})
 		fmt.Println("\n Potential Malicious Activity Detected (Saved to errors table) - Cookies didnt match")
