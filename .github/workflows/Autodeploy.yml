@@ -17,10 +17,10 @@ jobs:
     - name: Connect to VPS
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ env.VPS_IP }}
-        username: ${{ env.VPS_USER }}
+        host: ${{ secrets.VPS_IP }}
+        username: ${{ secrets.VPS_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           echo Pulling latest changes from Git
-          cd /root/backend-api
+          cd /home/irvyn-azure/backend-api
           git pull
