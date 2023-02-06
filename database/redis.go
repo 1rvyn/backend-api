@@ -92,7 +92,7 @@ func (r *RedisInstance) GetHMap(key string) (map[string]string, error) {
 }
 
 func (r *RedisInstance) DeleteHMap(key string) error {
-	err := r.Client.HDel(ctx, key).Err()
+	err := r.Client.Del(ctx, key).Err()
 	if err != nil {
 		fmt.Println("Error deleting |HashMap| from Redis", err)
 		return err

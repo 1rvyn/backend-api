@@ -3,3 +3,4 @@
 .idea
 /tmp/main
 /go.sum
+.air.toml

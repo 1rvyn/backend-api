@@ -411,7 +411,7 @@ func Logout(c *fiber.Ctx) error {
 
 	rcookie := c.Cookies("jwt")
 
-	fmt.Println("\nthe cookie is :", c.Cookies("jwt"))
+	fmt.Println("\nthe 'r' cookie is :", c.Cookies("jwt"))
 	// remove the session from redis
 
 	err := database.Redis.DeleteHMap(rcookie)
