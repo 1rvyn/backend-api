@@ -40,7 +40,7 @@ func ConnectDb() {
 	log.Println("Running Migrations")
 	// TODO: add migrations
 
-	err = db.AutoMigrate(&models.Account{}, &models.Submission{})
+	err = db.AutoMigrate(&models.Account{}, &models.Submission{}, &models.Error{})
 	if err != nil {
 		return
 	}

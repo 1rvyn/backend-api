@@ -104,15 +104,17 @@ func Account(c *fiber.Ctx) error {
 
 func Code(c *fiber.Ctx) error {
 
+	var data map[string][]byte
+
+	if err := c.BodyParser(&data); err != nil {
+		return err
+	}
+
+	fmt.Println("\nthe data is : ", data)
+
 	cookie := c.Cookies("jwt")
 
-	fmt.Println("the cookie is :", cookie)
-
-	//// search the cookie value in redis to get the session
-	//session, err := database.Redis.GetHMap(cookie)
-	//if err != nil {
-	//	return err
-	//}
+	fmt.Println("\nthe cookie is :", cookie)
 
 	// validate the cookie
 	claims, err := utils.GetClaimsFromCookie(cookie, SecretKey)
@@ -125,40 +127,44 @@ func Code(c *fiber.Ctx) error {
 
 	issuer := claims.Issuer
 	fmt.Println("\nthe issuer (userID) is : ", issuer)
-	//
-	//var data map[string]string
-	//
-	//if err := c.BodyParser(&data); err != nil {
-	//	return err
-	//}
-	//
-	//// TODO: validate vs the redis store to see if valid and or cookie was manipulated
-	//if cookie == "dont run yet" {
-	//	return c.SendStatus(401)
-	//} else {
-	//	session, err := database.Redis.GetHMap(cookie)
-	//	if err != nil {
-	//		return err
-	//	}
-	//
-	//	// check to see if the session is valid - if not, return 401
-	//
-	//	submission := models.Submission{
-	//		Code:   data["codeitem"],
-	//		UserID: session["userID"],
-	//		IP:     c.IP(),
-	//	}
-	//
-	//	database.Database.Db.Create(&submission)
-	//
-	//	// they must have a redis session to get a result
-	//}
-	//
-	//fmt.Println("the submission was saved to the database")
-	//
-	////TODO: right now this saves a submission if the code is unique -
-	//// but it should save a submission if tests it passes are unique
-	//
+
+	// compare the issuer from the claims to the user from the stored session in redis
+	session, err := database.Redis.GetHMap(cookie)
+	if err != nil {
+		return err
+	}
+
+	if issuer != session["userID"] {
+		// we should log this as a potential security breach
+		// - someone is trying to submit code with a cookie that is not theirs
+
+		// save info on what occured to the errors table
+
+		database.Database.Db.Create(&models.Error{
+			Message:    "Cookies didnt match",
+			CreatedAt:  time.Now(),
+			User:       session["userID"],
+			Submission: data["codeitem"],
+			IP:         c.Get("X-Forwarded-For"),
+			Claims:     claims,
+			Session:    session,
+		})
+		fmt.Println("\n Potential Malicious Activity Detected (Saved to errors table) - Cookies didnt match")
+		return c.SendStatus(401)
+	}
+
+	// else the cookie is valid, save the submission to the database & mark it as pending
+
+	//TODO: Set up getting the language from the frontend
+	submission := models.Submission{
+		Code:     data["codeitem"],
+		UserID:   session["userID"],
+		Language: "Python3",
+		IP:       c.Get("X-Forwarded-For"),
+	}
+
+	database.Database.Db.Create(&submission)
+
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "code was submitted",
