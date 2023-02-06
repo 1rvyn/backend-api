@@ -103,39 +103,25 @@ func Account(c *fiber.Ctx) error {
 }
 
 func Code(c *fiber.Ctx) error {
-	// save submission for user
-	// run their submission and return the output
 
 	cookie := c.Cookies("jwt")
-	if cookie == "" {
-		return c.SendStatus(401)
-	}
 
 	fmt.Println("the cookie is :", cookie)
 
-	return c.JSON(fiber.Map{
-		"status":  "success",
-		"message": "code was submitted",
-	})
-	//
-	//cookie := c.Cookies("jwt")
-	//
-	//fmt.Println("the cookie is :", cookie)
-	//
-	////// search the cookie value in redis to get the session
-	////session, err := database.Redis.GetHMap(cookie)
-	////if err != nil {
-	////	return err
-	////}
-	//
-	//// validate the cookie
-	//claims, err := utils.GetClaimsFromCookie(cookie, SecretKey)
+	//// search the cookie value in redis to get the session
+	//session, err := database.Redis.GetHMap(cookie)
 	//if err != nil {
-	//	// handle error
 	//	return err
-	//} // validate the cookie
-	//
-	//fmt.Println("\n the claims at submission are : ", claims)
+	//}
+
+	// validate the cookie
+	claims, err := utils.GetClaimsFromCookie(cookie, SecretKey)
+	if err != nil {
+		// handle error
+		return err
+	} // validate the cookie
+
+	fmt.Println("\n the claims at submission are : ", claims)
 	//
 	//var data map[string]string
 	//
@@ -170,10 +156,10 @@ func Code(c *fiber.Ctx) error {
 	////TODO: right now this saves a submission if the code is unique -
 	//// but it should save a submission if tests it passes are unique
 	//
-	//return c.JSON(fiber.Map{
-	//	"status":  "success",
-	//	"message": "code was submitted",
-	//})
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "code was submitted",
+	})
 }
 
 func Status(c *fiber.Ctx) error {
