@@ -8,9 +8,7 @@ on:
 env:
   VPS_IP: ${{ secrets.VPS_IP }}
   VPS_USER: root
-  VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
   
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -21,7 +19,7 @@ jobs:
       with:
         host: ${{ env.VPS_IP }}
         username: ${{ env.VPS_USER }}
-        password: ${{ env.VPS_PASSWORD }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           echo Pulling latest changes from Git
           cd /root/backend-api
