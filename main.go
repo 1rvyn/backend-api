@@ -106,6 +106,10 @@ func Code(c *fiber.Ctx) error {
 	// save submission for user
 	// run their submission and return the output
 
+	cookie := c.Cookies("jwt")
+
+	fmt.Println("the cookie is :", cookie)
+
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "code was submitted",
