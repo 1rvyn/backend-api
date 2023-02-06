@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"os/exec"
 	"strconv"
 	"time"
 
@@ -112,58 +111,38 @@ func Code(c *fiber.Ctx) error {
 		return err
 	}
 
-	file, err := os.Create("./remotecode/code.py")
+	cookie := c.Cookies("jwt")
+
+	claims, err := utils.GetClaimsFromCookie(cookie, SecretKey)
 	if err != nil {
-		panic(err)
-	}
-	defer func(file *os.File) {
-		err := file.Close()
+		// handle error
+		return err
+	} // validate the cookie
+
+	fmt.Println("\n the in the cookie at submission are : ", claims)
+
+	// TODO: validate vs the redis store to see if valid and or cookie was manipulated
+	if cookie == "dont run yet" {
+		return c.SendStatus(401)
+	} else {
+		session, err := database.Redis.GetHMap(cookie)
 		if err != nil {
-			panic(err)
+			return err
 		}
-	}(file) // TODO: check if this is the right way to do it
 
-	_, err = file.WriteString(data["codeitem"])
-	if err != nil {
-		panic(err)
+		// check to see if the session is valid - if not, return 401
+
+		submission := models.Submission{
+			Code:   data["codeitem"],
+			UserID: session["userID"],
+			IP:     c.IP(),
+		}
+
+		database.Database.Db.Create(&submission)
+
+		// they must have a redis session to get a result
 	}
 
-	// run the python code
-
-	cmd := exec.Command("python3", "./remotecode/code.py")
-
-	var outBuf, errBuf bytes.Buffer
-
-	cmd.Stdout = &outBuf
-	cmd.Stderr = &errBuf
-
-	err = cmd.Run()
-
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	output := outBuf.String()
-	errorOutput := errBuf.String()
-
-	fmt.Print("the whole cookie is: ", c.Cookies("jwt"))
-
-	// run the .py file
-
-	// send the output back to the client along with setting the status code
-
-	// save the output to the database
-	submission := models.Submission{
-		Code:       data["codeitem"],
-		Cookie:     c.Cookies("jwt"),
-		Email:      c.Cookies("email"),
-		IP:         c.IP(),
-		Successout: output,
-		Errorout:   errorOutput,
-	}
-
-	// create a submission object and save it to the database
-	database.Database.Db.Create(&submission)
 	fmt.Println("the submission was saved to the database")
 
 	//TODO: right now this saves a submission if the code is unique -
@@ -172,8 +151,6 @@ func Code(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "code was submitted",
-		"output":  output,
-		"error":   errorOutput,
 	})
 }
 
