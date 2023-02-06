@@ -122,6 +122,9 @@ func Code(c *fiber.Ctx) error {
 	} // validate the cookie
 
 	fmt.Println("\n the claims at submission are : ", claims)
+
+	issuer := claims.Issuer
+	fmt.Println("\nthe issuer (userID) is : ", issuer)
 	//
 	//var data map[string]string
 	//
