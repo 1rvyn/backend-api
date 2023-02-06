@@ -185,8 +185,6 @@ func Status(c *fiber.Ctx) error {
 
 func Login(c *fiber.Ctx) error {
 	var loginData map[string]string
-	// print the users cookie
-	//fmt.Println("the cookie is :", c.Cookies("jwt"))
 
 	if err := c.BodyParser(&loginData); err != nil {
 		return err
@@ -245,8 +243,6 @@ func Login(c *fiber.Ctx) error {
 				Domain:   ".irvyn.xyz",
 			}
 			c.Cookie(&cookie)
-
-			//fmt.Println("\nthe cookie VALUE we just created is :", cookie.Value)
 
 			// make new token to represent the session
 			sessionToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
