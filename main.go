@@ -107,6 +107,9 @@ func Code(c *fiber.Ctx) error {
 	// run their submission and return the output
 
 	cookie := c.Cookies("jwt")
+	if cookie == "" {
+		return c.SendStatus(401)
+	}
 
 	fmt.Println("the cookie is :", cookie)
 
