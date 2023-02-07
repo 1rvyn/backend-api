@@ -149,9 +149,18 @@ func Code(c *fiber.Ctx) error {
 
 	database.Database.Db.Create(&submission)
 
+	// mark the submission and return the output string
+
+	successOut := utils.Marking(data["codeitem"])
+
+	if successOut == "" {
+		successOut += "Error: Code was not successful"
+	}
+
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "code was submitted",
+		"output":  successOut,
 	})
 }
 
