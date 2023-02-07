@@ -60,10 +60,37 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/logout", Logout)
 	app.Get("/", Status)
 
+	app.Post("/submissions", getSubmissions)
 	app.Post("/session", getUserfromSession)
 	app.Post("/code", Code)
 	app.Post("/account", Account) // return users account from their cookie
 	// app.Post("/api/test1", test1)
+}
+
+func getSubmissions(c *fiber.Ctx) error {
+	// get the user from the cookie
+	cookie := c.Cookies("jwt")
+	// get their session from redis
+	if cookie == "" {
+		return c.SendStatus(401)
+	}
+
+	session, err := database.Redis.GetHMap(cookie)
+	if err != nil {
+		return err
+	}
+
+	if session["email"] == "" {
+		return c.SendStatus(401)
+	}
+
+	// get users submission from the submissions table
+	var submissions []models.Submission
+	if err := database.Database.Db.Where("user_id = ?", session["email"]).Find(&submissions).Error; err != nil {
+		return c.SendStatus(401)
+	} else {
+		return c.JSON(submissions)
+	}
 }
 
 func Account(c *fiber.Ctx) error {
@@ -95,6 +122,7 @@ func Account(c *fiber.Ctx) error {
 			Name:      user.Name,
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt,
+			UserRole:  user.UserRole,
 		}
 		return c.JSON(userResponse)
 	}
