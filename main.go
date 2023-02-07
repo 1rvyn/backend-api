@@ -85,7 +85,8 @@ func Account(c *fiber.Ctx) error {
 	fmt.Println("session we got from redis: ", session)
 
 	// get the user from the database
-	var user models.Account
+	var user models.ResponseAccount
+
 	if err := database.Database.Db.Where("email = ?", session["email"]).First(&user).Error; err != nil {
 		return c.SendStatus(401)
 	} else {
