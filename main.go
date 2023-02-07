@@ -41,11 +41,6 @@ func main() {
 
 	setupRoutes(app)
 
-	//err := app.Listen(":8080")
-	//if err != nil {
-	//	panic(err)
-	//}
-
 	//go func() { // for testing using pprof - import _ "net/http/pprof"
 	//	http.ListenAndServe("localhost:6060", nil)
 	//}()
@@ -78,10 +73,6 @@ func Account(c *fiber.Ctx) error {
 	if cookie == "" {
 		return c.SendStatus(401)
 	}
-	// get the user from the cookie
-
-	// look for the user in redis
-	// if it is there, return the user
 
 	session, err := database.Redis.GetHMap(cookie)
 	if err != nil {
@@ -110,11 +101,7 @@ func Code(c *fiber.Ctx) error {
 		return err
 	}
 
-	//fmt.Println("\nthe data is : ", data)
-
 	cookie := c.Cookies("jwt")
-
-	//fmt.Println("\nthe cookie is :", cookie)
 
 	// validate the cookie
 	claims, err := utils.GetClaimsFromCookie(cookie, SecretKey)
