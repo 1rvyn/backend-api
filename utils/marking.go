@@ -44,7 +44,8 @@ func Marking(code string) string {
 
 	if errorOutput != "" {
 		fmt.Println("Error: ", errorOutput)
+		return errorOutput
+	} else {
+		return output
 	}
-	return output
-
 }

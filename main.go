@@ -154,7 +154,7 @@ func Code(c *fiber.Ctx) error {
 	successOut := utils.Marking(data["codeitem"])
 
 	if successOut == "" {
-		successOut += "Error: Code was not successful"
+		successOut += "Error: Code was not successful at running on the server."
 	}
 
 	return c.JSON(fiber.Map{
