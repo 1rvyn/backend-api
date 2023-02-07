@@ -85,12 +85,18 @@ func Account(c *fiber.Ctx) error {
 	fmt.Println("session we got from redis: ", session)
 
 	// get the user from the database
-	var user models.ResponseAccount
+	var user models.Account
 
 	if err := database.Database.Db.Where("email = ?", session["email"]).First(&user).Error; err != nil {
 		return c.SendStatus(401)
 	} else {
-		return c.JSON(user)
+		userResponse := models.ResponseAccount{
+			ID:        user.ID,
+			Name:      user.Name,
+			Email:     user.Email,
+			CreatedAt: user.CreatedAt,
+		}
+		return c.JSON(userResponse)
 	}
 }
 
