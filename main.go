@@ -110,11 +110,11 @@ func Code(c *fiber.Ctx) error {
 		return err
 	}
 
-	fmt.Println("\nthe data is : ", data)
+	//fmt.Println("\nthe data is : ", data)
 
 	cookie := c.Cookies("jwt")
 
-	fmt.Println("\nthe cookie is :", cookie)
+	//fmt.Println("\nthe cookie is :", cookie)
 
 	// validate the cookie
 	claims, err := utils.GetClaimsFromCookie(cookie, SecretKey)
@@ -139,7 +139,6 @@ func Code(c *fiber.Ctx) error {
 		// - someone is trying to submit code with a cookie that is not theirs
 
 		// save info on what occured to the errors table
-
 		database.Database.Db.Create(&models.Error{
 			Message:    "Cookies didnt match",
 			CreatedAt:  time.Now(),
