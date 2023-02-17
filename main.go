@@ -262,7 +262,7 @@ func Login(c *fiber.Ctx) error {
 				SameSite: "None",
 				Secure:   true,
 				Path:     "/",
-				Domain:   "irvyn.love",
+				Domain:   ".irvyn.xyz",
 			}
 			c.Cookie(&cookie)
 
