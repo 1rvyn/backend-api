@@ -4,3 +4,5 @@
 /tmp/main
 /go.sum
 .air.toml
+env.txt
+.env

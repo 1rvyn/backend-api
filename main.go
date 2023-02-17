@@ -29,7 +29,7 @@ func main() {
 
 	// simplified CORS - it is a subdomain, so it should be fine
 	app.Use(func(c *fiber.Ctx) error {
-		c.Response().Header.Set("Access-Control-Allow-Origin", "https://irvyn.xyz")
+		c.Response().Header.Set("Access-Control-Allow-Origin", "http://irvyn.love")
 		c.Response().Header.Set("Access-Control-Allow-Credentials", "true")
 		c.Response().Header.Set("Access-Control-Allow-Headers", "Set-Cookie, Cookie , Content-Type")
 
@@ -60,7 +60,7 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/logout", Logout)
 	app.Get("/", Status)
 
-	app.Post("/submissions", getSubmissions)
+	app.Get("/submissions", getSubmissions)
 	app.Post("/session", getUserfromSession)
 	app.Post("/code", Code)
 	app.Post("/account", Account) // return users account from their cookie
@@ -262,7 +262,7 @@ func Login(c *fiber.Ctx) error {
 				SameSite: "None",
 				Secure:   true,
 				Path:     "/",
-				Domain:   ".irvyn.xyz",
+				Domain:   "irvyn.love",
 			}
 			c.Cookie(&cookie)
 
