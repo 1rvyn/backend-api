@@ -65,9 +65,19 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/code", Code)
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
+	app.Post("/question/:id", Question)
 	// app.Post("/api/test1", test1)
 }
 
+func Question(c *fiber.Ctx) error {
+	// here we get the question from the ID in the url
+
+	// we search the questions DB for a question with ID = id from URL
+
+	// we return the question as an object to the user - reference to the models.Question struct
+
+	return c.JSON("good question" + c.Params("id"))
+}
 func BugReport(c *fiber.Ctx) error {
 
 	// get the user from the cookie
