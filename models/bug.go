@@ -6,3 +6,5 @@ type Bug struct {
 	Title string `json:"title"`
 	Body  string `json:"body"`
 }
+
+// TODO: Rate limit the fuck out of this endpoint (throw back)
