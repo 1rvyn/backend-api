@@ -475,6 +475,9 @@ func Register(c *fiber.Ctx) error {
 	if err := database.Database.Db.Create(&user).Error; err != nil {
 		return err
 	}
+
+	// TODO: Email the user a confirmation link to verify their email address
+
 	// return success
 	return c.JSON(fiber.Map{
 		"success": true,
