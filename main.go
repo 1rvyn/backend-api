@@ -497,14 +497,14 @@ func Mailgun(c *fiber.Ctx) error {
 
 	fmt.Println("mailgun test hit")
 
-	mgDomain := "api.irvyn.xyz"
-	mgApiKey := os.Getenv("MAILGUN_API_KEY")
+	var mgDomain string = "mg.api.irvyn.xyz"
+	var mgApiKey string = os.Getenv("MAILGUN_API_KEY")
 	mg := mailgun.NewMailgun(mgDomain, mgApiKey)
 
 	mg.SetAPIBase("https://api.mailgun.net/v3")
 
 	// Build the email message
-	from := "Big boss <mailgun@api.irvyn.xyz>"
+	from := "<mailgun@api.irvyn.xyz>"
 	subject := "Hello"
 	body := "Testing some Mailgun awesomeness!"
 	to := "i.hall3@rgu.ac.uk"
