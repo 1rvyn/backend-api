@@ -69,15 +69,15 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/question/:id", Question)
 	//app.Get("/mailgun", Mailgun)
 
-	app.Get("/verify/:code/:email", VerifyAccount)
+	app.Get("/verify", VerifyAccount)
 	//app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
 }
 
 func VerifyAccount(c *fiber.Ctx) error {
 	// get the code from the url
-	code := c.Params("code")
-	email := c.Params("email")
+	code := c.Query("code")
+	email := c.Query("email")
 
 	// get the user from the database
 	var user models.Account
