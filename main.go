@@ -497,7 +497,7 @@ func Mailgun(c *fiber.Ctx) error {
 
 	fmt.Println("mailgun test hit")
 
-	var mgDomain string = "mg.api.irvyn.xyz"
+	var mgDomain string = "api.irvyn.xyz"
 	var mgApiKey string = os.Getenv("MAILGUN_API_KEY")
 	mg := mailgun.NewMailgun(mgDomain, mgApiKey)
 
