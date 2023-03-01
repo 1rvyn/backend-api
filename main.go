@@ -95,7 +95,7 @@ func VerifyAccount(c *fiber.Ctx) error {
 	// update the user
 	database.Database.Db.Model(&user).Update("verified", true)
 
-	return c.RedirectToRoute("https://irvyn.xyz/login", fiber.Map{"message": "successfully verified email"}, 200)
+	return c.Redirect("https://irvyn.xyz/login?message=successfully+verified+email")
 
 }
 
