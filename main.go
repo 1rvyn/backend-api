@@ -509,7 +509,10 @@ func Register(c *fiber.Ctx) error {
 	}
 	// since we have saved the user, we can now send them an email to verify their email address
 
-	utils.VerifyEmail(user.Email, user.EmailCode) // TODO: check to make sure the email was sent???
+	err := utils.SendMail(user.Email)
+	if err != nil {
+		return err
+	}
 
 	// return success
 	return c.JSON(fiber.Map{

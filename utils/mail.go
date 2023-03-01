@@ -5,27 +5,26 @@ import (
 	"fmt"
 	"github.com/mailgun/mailgun-go/v4"
 	"math/rand"
-	"net/smtp"
 	"os"
 	"strconv"
 	"time"
 )
 
-func VerifyEmail(email string, code int) bool {
-	// Email verification
-	from := "irvynhall@gmail.com"
-	subject := "Verify your email"
-	body := "Your verification code is: " + strconv.Itoa(code)
-	msg := "From: " + from + "\n" + "Subject: " + subject + "\n" + body
-
-	err := smtp.SendMail("smtp.gmail.com:587", smtp.PlainAuth("", from, "password", "smtp.gmail.com"), from, []string{email}, []byte(msg))
-	if err != nil {
-		return false
-	} else {
-		return true
-	}
-
-}
+//func VerifyEmail(email string, code int) bool {
+//	// Email verification
+//	from := "irvynhall@gmail.com"
+//	subject := "Verify your email"
+//	body := "Your verification code is: " + strconv.Itoa(code)
+//	msg := "From: " + from + "\n" + "Subject: " + subject + "\n" + body
+//
+//	err := smtp.SendMail("smtp.gmail.com:587", smtp.PlainAuth("", from, "password", "smtp.gmail.com"), from, []string{email}, []byte(msg))
+//	if err != nil {
+//		return false
+//	} else {
+//		return true
+//	}
+//
+//}
 
 func SendMail(email string) error {
 	// send a verification email
@@ -53,7 +52,6 @@ func SendMail(email string) error {
 
 	if err != nil {
 		fmt.Println("error sending email:")
-		fmt.Println(err)
 		return err
 	} else {
 		fmt.Printf("ID: %s Resp: %s\n", id, resp)
