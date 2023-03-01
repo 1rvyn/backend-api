@@ -504,8 +504,8 @@ func Mailgun(c *fiber.Ctx) error {
 	mg.SetAPIBase("https://api.eu.mailgun.net/v3")
 
 	// Build the email message
-	from := "mailgun@api.irvyn.xyz"
-	subject := "Hello"
+	from := "verifcation@irvyn.xyz"
+	subject := "Verification"
 	body := "Testing some Mailgun awesomeness!"
 	to := "i.hall3@rgu.ac.uk"
 
