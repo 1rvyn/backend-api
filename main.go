@@ -67,7 +67,7 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
 	app.Post("/question/:id", Question)
-	app.Get("/mailgun", mailgunn)
+	app.Get("/mailgun", Mailgun)
 
 	app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
@@ -492,7 +492,7 @@ func Register(c *fiber.Ctx) error {
 	})
 }
 
-func mailgunn(c *fiber.Ctx) error {
+func Mailgun(c *fiber.Ctx) error {
 	// send a test email
 
 	fmt.Println("mailgun test hit")
@@ -512,15 +512,10 @@ func mailgunn(c *fiber.Ctx) error {
 	_, _, err := mg.Send(context.Background(), message)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"success": false,
-			"message": "error sending email",
-		})
+		return c.SendString("Error sending email")
 	}
 
-	return c.JSON(fiber.Map{
-		"success": true,
-	})
+	return c.SendString("Email sent successfully")
 
 }
 
