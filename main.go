@@ -85,6 +85,11 @@ func VerifyAccount(c *fiber.Ctx) error {
 		return c.SendStatus(401)
 	}
 
+	// check to see if the user is already verified
+	if user.Verified {
+		return c.Redirect("https://irvyn.xyz/login?message=account+already+verified")
+	}
+
 	// check if the code is correct
 	if strconv.Itoa(user.EmailCode) == code {
 		// update the user
