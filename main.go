@@ -5,13 +5,14 @@ import (
 	"authserver/models"
 	"authserver/utils"
 	"bytes"
+	"context"
 	"fmt"
+	"github.com/mailgun/mailgun-go/v4"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-
 	"github.com/golang-jwt/jwt"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
@@ -488,6 +489,36 @@ func Register(c *fiber.Ctx) error {
 		"success": true,
 		"message": "Successfully registered user",
 	})
+}
+
+func TestMailgun(c *fiber.Ctx) error {
+	// send a test email
+
+	mgDomain := "api.irvyn.xyz"
+	mgApiKey := os.Getenv("MAILGUN_API_KEY")
+	mg := mailgun.NewMailgun(mgDomain, mgApiKey)
+
+	// Build the email message
+	from := "Big boss <mailgun@api.irvyn.xyz>"
+	subject := "Hello"
+	body := "Testing some Mailgun awesomeness!"
+	to := "i.hall3@rgu.ac.uk"
+	message := mg.NewMessage(from, subject, body, to)
+
+	// Send the email via the Mailgun API
+	_, _, err := mg.Send(context.Background(), message)
+
+	if err != nil {
+		return c.JSON(fiber.Map{
+			"success": false,
+			"message": "error sending email",
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+	})
+
 }
 
 func VerifyEmail(c *fiber.Ctx) error {
