@@ -501,7 +501,7 @@ func Mailgun(c *fiber.Ctx) error {
 	var mgApiKey string = os.Getenv("MAILGUN_API_KEY")
 	mg := mailgun.NewMailgun(mgDomain, mgApiKey)
 
-	mg.SetAPIBase("https://api.mailgun.net/v3")
+	mg.SetAPIBase("https://api.eu.mailgun.net/v3")
 
 	// Build the email message
 	from := "mailgun@api.irvyn.xyz"
