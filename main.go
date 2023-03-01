@@ -512,6 +512,8 @@ func Mailgun(c *fiber.Ctx) error {
 	_, _, err := mg.Send(context.Background(), message)
 
 	if err != nil {
+		fmt.Println("error sending email")
+		fmt.Println(err)
 		return c.SendString("Error sending email")
 	}
 
