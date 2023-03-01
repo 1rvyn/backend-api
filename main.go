@@ -67,10 +67,36 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
 	app.Post("/question/:id", Question)
-	app.Get("/mailgun", Mailgun)
+	//app.Get("/mailgun", Mailgun)
 
-	app.Post("/vemail", VerifyEmail)
+	app.Post("/verify/:code/:email", VerifyAccount)
+	//app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
+}
+
+func VerifyAccount(c *fiber.Ctx) error {
+	// get the code from the url
+	code := c.Params("code")
+	email := c.Params("email")
+
+	// get the user from the database
+	var user models.Account
+	if err := database.Database.Db.Where("email = ?", email).First(&user).Error; err != nil {
+		return c.SendStatus(401)
+	}
+
+	// check if the code is correct
+	if strconv.Itoa(user.EmailCode) == code {
+		// update the user
+		database.Database.Db.Model(&user).Update("verified", true)
+		return c.JSON("verified")
+	}
+
+	// update the user
+	database.Database.Db.Model(&user).Update("verified", true)
+
+	return c.RedirectToRoute("https://irvyn.xyz/login", fiber.Map{"message": "successfully verified email"}, 200)
+
 }
 
 func Question(c *fiber.Ctx) error {
@@ -506,7 +532,7 @@ func Mailgun(c *fiber.Ctx) error {
 	// Build the email message
 	from := "verifcation@irvyn.xyz"
 	subject := "Verification"
-	body := "Testing some Mailgun awesomeness!"
+	body := "Please confirm your email address by clicking the link below: \n\n https://irvyn.xyz/verify?code="
 	to := "i.hall3@rgu.ac.uk"
 
 	message := mg.NewMessage(from, subject, body, to)
