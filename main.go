@@ -506,19 +506,23 @@ func Mailgun(c *fiber.Ctx) error {
 	subject := "Hello"
 	body := "Testing some Mailgun awesomeness!"
 	to := "i.hall3@rgu.ac.uk"
+
 	message := mg.NewMessage(from, subject, body, to)
 
 	// Send the email via the Mailgun API
-	_, _, err := mg.Send(context.Background(), message)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	resp, id, err := mg.Send(ctx, message)
 
 	if err != nil {
 		fmt.Println("error sending email")
 		fmt.Println(err)
 		return c.SendString("Error sending email")
+	} else {
+		fmt.Printf("ID: %s Resp: %s\n", id, resp)
+		return c.SendString("Email sent successfully")
 	}
-
-	return c.SendString("Email sent successfully")
-
 }
 
 func VerifyEmail(c *fiber.Ctx) error {
