@@ -9,4 +9,6 @@ type Account struct {
 	EncryptedPassword []byte    `json:"password"`
 	CreatedAt         time.Time `json:"created_at"`
 	UserRole          int       `gorm:"default:1"`
+	EmailCode         int       `json:"email_code"`
+	Verified          bool      `json:"email_verified"`
 }

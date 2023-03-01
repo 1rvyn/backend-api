@@ -66,6 +66,8 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
 	app.Post("/question/:id", Question)
+
+	app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
 }
 
@@ -470,19 +472,63 @@ func Register(c *fiber.Ctx) error {
 		Name:              data["name"],
 		Email:             data["email"],
 		EncryptedPassword: encpw,
+		EmailCode:         utils.GenerateVerficiationCode(),
+		Verified:          false,
 	}
 
 	if err := database.Database.Db.Create(&user).Error; err != nil {
 		return err
 	}
+	// since we have saved the user, we can now send them an email to verify their email address
 
-	// TODO: Email the user a confirmation link to verify their email address
+	utils.VerifyEmail(user.Email, user.EmailCode) // TODO: check to make sure the email was sent???
 
 	// return success
 	return c.JSON(fiber.Map{
 		"success": true,
 		"message": "Successfully registered user",
 	})
+}
+
+func VerifyEmail(c *fiber.Ctx) error {
+	var data map[string]string
+
+	if err := c.BodyParser(&data); err != nil {
+		return err
+	}
+
+	// get the user's email from the database
+	user := &models.Account{}
+
+	// get the user from the database - for their email
+	if err := database.Database.Db.Where("email = ?", data["email"]).First(user).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return err
+		}
+	} else {
+		return c.JSON(fiber.Map{
+			"success": false,
+			"message": "email not found",
+		})
+	}
+
+	// check to see if the code matches
+	if strconv.Itoa(user.EmailCode) == data["code"] {
+		// update the user's verified status
+		user.Verified = true
+		database.Database.Db.Save(user)
+
+		return c.JSON(fiber.Map{
+			"success": true,
+			"message": "successfully verified email",
+		})
+	} else {
+		return c.JSON(fiber.Map{
+			"success": false,
+			"message": "invalid code",
+		})
+	}
+
 }
 
 func Logout(c *fiber.Ctx) error {
