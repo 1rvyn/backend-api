@@ -5,9 +5,7 @@ import (
 	"authserver/models"
 	"authserver/utils"
 	"bytes"
-	"context"
 	"fmt"
-	"github.com/mailgun/mailgun-go/v4"
 	"os"
 	"strconv"
 	"time"
@@ -524,82 +522,6 @@ func Register(c *fiber.Ctx) error {
 		"success": true,
 		"message": "Successfully registered user",
 	})
-}
-
-func Mailgun(c *fiber.Ctx) error {
-	// send a test email
-
-	fmt.Println("mailgun test hit")
-
-	var mgDomain string = "api.irvyn.xyz"
-	var mgApiKey string = os.Getenv("MAILGUN_API_KEY")
-	mg := mailgun.NewMailgun(mgDomain, mgApiKey)
-
-	mg.SetAPIBase("https://api.eu.mailgun.net/v3")
-
-	// Build the email message
-	from := "verifcation@irvyn.xyz"
-	subject := "Verification"
-	body := "Please confirm your email address by clicking the link below: \n\n https://irvyn.xyz/verify?code="
-	to := "i.hall3@rgu.ac.uk"
-
-	message := mg.NewMessage(from, subject, body, to)
-
-	// Send the email via the Mailgun API
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
-
-	resp, id, err := mg.Send(ctx, message)
-
-	if err != nil {
-		fmt.Println("error sending email")
-		fmt.Println(err)
-		return c.SendString("Error sending email")
-	} else {
-		fmt.Printf("ID: %s Resp: %s\n", id, resp)
-		return c.SendString("Email sent successfully")
-	}
-}
-
-func VerifyEmail(c *fiber.Ctx) error {
-	var data map[string]string
-
-	if err := c.BodyParser(&data); err != nil {
-		return err
-	}
-
-	// get the user's email from the database
-	user := &models.Account{}
-
-	// get the user from the database - for their email
-	if err := database.Database.Db.Where("email = ?", data["email"]).First(user).Error; err != nil {
-		if err != gorm.ErrRecordNotFound {
-			return err
-		}
-	} else {
-		return c.JSON(fiber.Map{
-			"success": false,
-			"message": "email not found",
-		})
-	}
-
-	// check to see if the code matches
-	if strconv.Itoa(user.EmailCode) == data["code"] {
-		// update the user's verified status
-		user.Verified = true
-		database.Database.Db.Save(user)
-
-		return c.JSON(fiber.Map{
-			"success": true,
-			"message": "successfully verified email",
-		})
-	} else {
-		return c.JSON(fiber.Map{
-			"success": false,
-			"message": "invalid code",
-		})
-	}
-
 }
 
 func Logout(c *fiber.Ctx) error {
