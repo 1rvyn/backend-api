@@ -67,7 +67,7 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
 	app.Post("/question/:id", Question)
-	app.Post("/mailgun", TestMailgun)
+	app.Get("/mailgun", mailgunn)
 
 	app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
@@ -492,8 +492,10 @@ func Register(c *fiber.Ctx) error {
 	})
 }
 
-func TestMailgun(c *fiber.Ctx) error {
+func mailgunn(c *fiber.Ctx) error {
 	// send a test email
+
+	fmt.Println("mailgun test hit")
 
 	mgDomain := "api.irvyn.xyz"
 	mgApiKey := os.Getenv("MAILGUN_API_KEY")
