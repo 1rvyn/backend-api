@@ -75,27 +75,26 @@ func setupRoutes(app *fiber.App) {
 
 func CreateQuestion(c *fiber.Ctx) error {
 	// get the question and its data
-	var questionData map[string]string
+	var questionData models.Question
 
 	if err := c.BodyParser(&questionData); err != nil {
 		return err
 	}
 
 	fmt.Println(questionData)
-	// save the question to the database
-	question := models.Question{
-		Problem:           questionData["question"],
-		ExampleAnswer:     questionData["answer"],
-		ExampleInput:      questionData["input"],
-		ProblemType:       questionData["questionType"],
-		ProblemDifficulty: questionData["difficulty"],
+
+	// validate the presence of the required languages in the TemplateCode field
+	if questionData.TemplateCode["python"] == "" || questionData.TemplateCode["javascript"] == "" || questionData.TemplateCode["go"] == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Template code for Python, JavaScript, and Go are required.",
+		})
 	}
 
-	database.Database.Db.Create(&question)
+	database.Database.Db.Create(&questionData)
 
 	// return the question to the user
 
-	return c.JSON(question)
+	return c.JSON(questionData)
 }
 
 func VerifyAccount(c *fiber.Ctx) error {

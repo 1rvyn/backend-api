@@ -4,20 +4,23 @@ go 1.20
 
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	gorm.io/gorm v1.24.3
+	github.com/mailgun/mailgun-go/v4 v4.8.2
+	gorm.io/datatypes v1.1.1
+	gorm.io/gorm v1.24.6
 )
 
 require (
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.2.0 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
-	github.com/mailgun/mailgun-go/v4 v4.8.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
 	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	golang.org/x/text v0.6.0 // indirect
+	gorm.io/driver/mysql v1.4.7 // indirect
 )
 
 require (
