@@ -65,11 +65,37 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
 	app.Post("/question/:id", Question)
+	app.Post("/question/create", CreateQuestion)
 	//app.Get("/mailgun", Mailgun)
 
 	app.Get("/verify", VerifyAccount)
 	//app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
+}
+
+func CreateQuestion(c *fiber.Ctx) error {
+	// get the question and its data
+	var questionData map[string]string
+
+	if err := c.BodyParser(&questionData); err != nil {
+		return err
+	}
+
+	fmt.Println(questionData)
+	// save the question to the database
+	question := models.Question{
+		Problem:           questionData["question"],
+		ExampleAnswer:     questionData["answer"],
+		ExampleInput:      questionData["input"],
+		ProblemType:       questionData["questionType"],
+		ProblemDifficulty: questionData["difficulty"],
+	}
+
+	database.Database.Db.Create(&question)
+
+	// return the question to the user
+
+	return c.JSON(question)
 }
 
 func VerifyAccount(c *fiber.Ctx) error {
