@@ -74,6 +74,7 @@ func setupRoutes(app *fiber.App) {
 }
 
 func CreateQuestion(c *fiber.Ctx) error {
+	fmt.Println("CreateQuestion handler HIT")
 	// get the question and its data
 	var questionData models.Question
 
