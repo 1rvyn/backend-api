@@ -65,7 +65,7 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
 	app.Post("/question/:id", Question)
-	app.Post("/addquestion", CreateQuestion)
+	app.Post("/add", CreateQuestion)
 	//app.Get("/mailgun", Mailgun)
 
 	app.Get("/verify", VerifyAccount)
