@@ -333,18 +333,50 @@ func Status(c *fiber.Ctx) error {
 
 func NewQuestion(c *fiber.Ctx) error {
 	fmt.Println("new question")
-	var question NewQ
+	var questionData map[string]string
 
-	if err := c.BodyParser(&question); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Cannot parse JSON",
-		})
+	if err := c.BodyParser(&questionData); err != nil {
+		return err
+
 	}
-	// Process the question data, e.g., save it to a database
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": "Question created successfully",
+	// get the user from the cookie
+	cookie := c.Cookies("jwt")
+	// get their session from redis
+	if cookie == "" {
+		return c.SendStatus(401)
+	}
+
+	session, err := database.Redis.GetHMap(cookie)
+	if err != nil {
+		return err
+
+	}
+
+	if session["email"] == "" {
+		return c.SendStatus(401)
+	}
+
+	// return success
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "question was submitted",
+		"user":    session["email"],
 	})
+
+	//var question NewQ
+	//
+	//if err := c.BodyParser(&question); err != nil {
+	//	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	//		"error": "Cannot parse JSON",
+	//	})
+	//}
+	//// Process the question data, e.g., save it to a database
+	//
+	//return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+	//	"message": "Question created successfully",
+	//})
 }
 
 func Login(c *fiber.Ctx) error {
