@@ -72,7 +72,7 @@ func setupRoutes(app *fiber.App) {
 	//app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
 
-	app.Post("/newQuestion", NewQuestion)
+	app.Post("/newquestion", NewQuestion)
 
 }
 
