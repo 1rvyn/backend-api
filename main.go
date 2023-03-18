@@ -72,7 +72,7 @@ func setupRoutes(app *fiber.App) {
 	//app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
 
-	app.Post("/newquestion", NewQuestion)
+	app.Post("/new_question", NewQuestion)
 
 }
 
@@ -83,21 +83,6 @@ type NewQ struct {
 	ProblemType       string            `json:"problem_type"`
 	ProblemDifficulty string            `json:"problem_difficulty"`
 	TemplateCode      map[string]string `json:"template_code"`
-}
-
-func NewQuestion(c *fiber.Ctx) error {
-	var question NewQ
-
-	if err := c.BodyParser(&question); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Cannot parse JSON",
-		})
-	}
-	// Process the question data, e.g., save it to a database
-
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": "Question created successfully",
-	})
 }
 
 func CreateQuestion(c *fiber.Ctx) error {
@@ -344,6 +329,22 @@ func Status(c *fiber.Ctx) error {
 	// create a bunch of accounts
 
 	return c.SendString("Hello world 👋!")
+}
+
+func NewQuestion(c *fiber.Ctx) error {
+	fmt.Println("new question")
+	var question NewQ
+
+	if err := c.BodyParser(&question); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+	// Process the question data, e.g., save it to a database
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"message": "Question created successfully",
+	})
 }
 
 func Login(c *fiber.Ctx) error {
