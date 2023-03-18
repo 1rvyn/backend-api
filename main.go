@@ -339,29 +339,29 @@ func NewQuestion(c *fiber.Ctx) error {
 
 	}
 
-	// get the user from the cookie
-	cookie := c.Cookies("jwt")
-	// get their session from redis
-	if cookie == "" {
-		return c.SendStatus(401)
-	}
+	//// get the user from the cookie
+	//cookie := c.Cookies("jwt")
+	//// get their session from redis
+	//if cookie == "" {
+	//	return c.SendStatus(401)
+	//}
 
-	session, err := database.Redis.GetHMap(cookie)
-	if err != nil {
-		return err
-
-	}
-
-	if session["email"] == "" {
-		return c.SendStatus(401)
-	}
+	//session, err := database.Redis.GetHMap(cookie)
+	//if err != nil {
+	//	return err
+	//
+	//}
+	//
+	//if session["email"] == "" {
+	//	return c.SendStatus(401)
+	//}
 
 	// return success
 
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "question was submitted",
-		"user":    session["email"],
+		//"user":    session["email"],
 	})
 
 	//var question NewQ
