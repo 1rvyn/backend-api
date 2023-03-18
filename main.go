@@ -65,19 +65,15 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/code", Code)
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
-	//app.Post("/question/:id", Question)
+	app.Post("/question/:id", Question)
 	app.Post("/add", CreateQuestion)
-	app.Post("/jade", Jade)
+	app.Get("/jade", Jade)
 	//app.Get("/mailgun", Mailgun)
 
 	app.Get("/verify", VerifyAccount)
 	//app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
 
-}
-func Jade(c *fiber.Ctx) error {
-	fmt.Println("Jade POST handler HIT")
-	return c.SendString("Jade👋!")
 }
 
 //type NewQ struct {
@@ -142,6 +138,11 @@ func VerifyAccount(c *fiber.Ctx) error {
 
 	return c.Redirect("https://irvyn.xyz/login?message=successfully+verified+email")
 
+}
+
+func Jade(c *fiber.Ctx) error {
+	fmt.Println("Jade POST handler HIT")
+	return c.SendString("Jade👋!")
 }
 
 func Question(c *fiber.Ctx) error {
