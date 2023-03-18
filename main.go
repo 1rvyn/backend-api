@@ -95,7 +95,7 @@ func CreateQuestion(c *fiber.Ctx) error {
 
 	// return the question to the user
 
-	return c.JSON(questionData)
+	return c.SendStatus(200)
 }
 
 func VerifyAccount(c *fiber.Ctx) error {
