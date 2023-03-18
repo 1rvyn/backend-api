@@ -71,6 +71,33 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/verify", VerifyAccount)
 	//app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
+
+	app.Post("/newQuestion", NewQuestion)
+
+}
+
+type NewQ struct {
+	Problem           string            `json:"problem"`
+	ExampleAnswer     string            `json:"example_answer"`
+	ExampleInput      string            `json:"example_input"`
+	ProblemType       string            `json:"problem_type"`
+	ProblemDifficulty string            `json:"problem_difficulty"`
+	TemplateCode      map[string]string `json:"template_code"`
+}
+
+func NewQuestion(c *fiber.Ctx) error {
+	var question NewQ
+
+	if err := c.BodyParser(&question); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+	// Process the question data, e.g., save it to a database
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"message": "Question created successfully",
+	})
 }
 
 func CreateQuestion(c *fiber.Ctx) error {
