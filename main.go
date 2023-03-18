@@ -5,6 +5,7 @@ import (
 	"authserver/models"
 	"authserver/utils"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -53,7 +54,6 @@ func main() {
 }
 
 func setupRoutes(app *fiber.App) {
-	app.Post("/new_question", NewQuestion)
 	app.Post("/register", Register)
 	app.Post("/login", Login)
 	app.Post("/user", getUser)
@@ -66,8 +66,7 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
 	app.Post("/question/:id", Question)
-	app.Post("/add", CreateQuestion)
-	app.Get("/jade", Jade)
+	app.Post("/new_question", CreateQuestion)
 	//app.Get("/mailgun", Mailgun)
 
 	app.Get("/verify", VerifyAccount)
@@ -75,15 +74,6 @@ func setupRoutes(app *fiber.App) {
 	// app.Post("/api/test1", test1)
 
 }
-
-//type NewQ struct {
-//	Problem           string            `json:"problem"`
-//	ExampleAnswer     string            `json:"example_answer"`
-//	ExampleInput      string            `json:"example_input"`
-//	ProblemType       string            `json:"problem_type"`
-//	ProblemDifficulty string            `json:"problem_difficulty"`
-//	TemplateCode      map[string]string `json:"template_code"`
-//}
 
 func CreateQuestion(c *fiber.Ctx) error {
 	fmt.Println("CreateQuestion handler HIT")
@@ -96,8 +86,18 @@ func CreateQuestion(c *fiber.Ctx) error {
 
 	fmt.Println(questionData)
 
-	// validate the presence of the required languages in the TemplateCode field
-	if questionData.TemplateCode["python"] == "" || questionData.TemplateCode["javascript"] == "" || questionData.TemplateCode["go"] == "" {
+	//TODO: Speed up this - marshal and unmarshal is slow
+
+	// Unmarshal the TemplateCode JSON data into a map[string]string
+	var templateCodeMap map[string]string
+	if err := json.Unmarshal(questionData.TemplateCode, &templateCodeMap); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid template code JSON format.",
+		})
+	}
+
+	// Validate the presence of the required languages in the TemplateCode field
+	if templateCodeMap["python"] == "" || templateCodeMap["javascript"] == "" || templateCodeMap["go"] == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Template code for Python, JavaScript, and Go are required.",
 		})
@@ -138,11 +138,6 @@ func VerifyAccount(c *fiber.Ctx) error {
 
 	return c.Redirect("https://irvyn.xyz/login?message=successfully+verified+email")
 
-}
-
-func Jade(c *fiber.Ctx) error {
-	fmt.Println("Jade POST handler HIT")
-	return c.SendString("Jade👋!")
 }
 
 func Question(c *fiber.Ctx) error {
@@ -334,34 +329,6 @@ func Status(c *fiber.Ctx) error {
 	// create a bunch of accounts
 
 	return c.SendString("Hello world 👋!")
-}
-
-func NewQuestion(c *fiber.Ctx) error {
-	fmt.Println("new question")
-	var questionData map[string]string
-
-	if err := c.BodyParser(&questionData); err != nil {
-		return err
-
-	}
-
-	return c.JSON(fiber.Map{
-		"status":  "success",
-		"message": "question was submitted",
-	})
-
-	//var question NewQ
-	//
-	//if err := c.BodyParser(&question); err != nil {
-	//	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-	//		"error": "Cannot parse JSON",
-	//	})
-	//}
-	//// Process the question data, e.g., save it to a database
-	//
-	//return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-	//	"message": "Question created successfully",
-	//})
 }
 
 func Login(c *fiber.Ctx) error {
