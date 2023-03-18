@@ -67,6 +67,7 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/bugreport", BugReport)
 	app.Post("/question/:id", Question)
 	app.Post("/add", CreateQuestion)
+	app.Post("/jade", Jade)
 	//app.Get("/mailgun", Mailgun)
 
 	app.Get("/verify", VerifyAccount)
@@ -74,15 +75,19 @@ func setupRoutes(app *fiber.App) {
 	// app.Post("/api/test1", test1)
 
 }
-
-type NewQ struct {
-	Problem           string            `json:"problem"`
-	ExampleAnswer     string            `json:"example_answer"`
-	ExampleInput      string            `json:"example_input"`
-	ProblemType       string            `json:"problem_type"`
-	ProblemDifficulty string            `json:"problem_difficulty"`
-	TemplateCode      map[string]string `json:"template_code"`
+func Jade(c *fiber.Ctx) error {
+	fmt.Println("Jade POST handler HIT")
+	return c.SendString("Jade👋!")
 }
+
+//type NewQ struct {
+//	Problem           string            `json:"problem"`
+//	ExampleAnswer     string            `json:"example_answer"`
+//	ExampleInput      string            `json:"example_input"`
+//	ProblemType       string            `json:"problem_type"`
+//	ProblemDifficulty string            `json:"problem_difficulty"`
+//	TemplateCode      map[string]string `json:"template_code"`
+//}
 
 func CreateQuestion(c *fiber.Ctx) error {
 	fmt.Println("CreateQuestion handler HIT")
