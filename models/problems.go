@@ -11,5 +11,5 @@ type Question struct {
 	ExampleInput      string          `json:"example_input"`
 	ProblemType       string          `json:"problem_type"`
 	ProblemDifficulty string          `json:"problem_difficulty"`
-	TemplateCode      json.RawMessage `json:"template_code"`
+	TemplateCode      json.RawMessage `json:"template_code" gorm:"type:jsonb"`
 }

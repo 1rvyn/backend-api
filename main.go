@@ -41,10 +41,6 @@ func main() {
 
 	setupRoutes(app)
 
-	//go func() { // for testing using pprof - import _ "net/http/pprof"
-	//	http.ListenAndServe("localhost:6060", nil)
-	//}()
-
 	// Your existing fiber web app code
 	err := app.Listen(":8080")
 	if err != nil {
@@ -62,6 +58,7 @@ func setupRoutes(app *fiber.App) {
 
 	app.Get("/submissions", getSubmissions)
 	app.Post("/session", getUserfromSession)
+	app.Post("/getsession", getSession)
 	app.Post("/code", Code)
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
@@ -75,8 +72,39 @@ func setupRoutes(app *fiber.App) {
 
 }
 
+func getSession(c *fiber.Ctx) error {
+	session, err := utils.GetSession(c)
+	if err != nil {
+		return err
+	}
+	fmt.Println(session)
+
+	return c.JSON(fiber.Map{
+		"message": "success",
+	})
+}
+
 func CreateQuestion(c *fiber.Ctx) error {
 	fmt.Println("CreateQuestion handler HIT")
+
+	// check if user has a cookie and is logged in
+
+	cookie := c.Cookies("jwt")
+	if cookie == "" {
+		return c.SendStatus(401)
+	} else {
+		// check if the user has a session in redis
+
+		session, err := database.Redis.GetHMap(cookie)
+		if err != nil {
+			return err
+		}
+
+		if session == nil {
+			return c.SendStatus(401)
+		}
+	}
+
 	// get the question and its data
 	var questionData models.Question
 
@@ -107,7 +135,9 @@ func CreateQuestion(c *fiber.Ctx) error {
 
 	// return the question to the user
 
-	return c.SendStatus(200)
+	return c.JSON(fiber.Map{
+		"message": "Question created successfully.",
+	})
 }
 
 func VerifyAccount(c *fiber.Ctx) error {
