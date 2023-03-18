@@ -53,7 +53,7 @@ func main() {
 }
 
 func setupRoutes(app *fiber.App) {
-	app.Post("/new", NewQuestion)
+	app.Post("/new_question", NewQuestion)
 	app.Post("/register", Register)
 	app.Post("/login", Login)
 	app.Post("/user", getUser)
