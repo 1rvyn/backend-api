@@ -53,6 +53,7 @@ func main() {
 }
 
 func setupRoutes(app *fiber.App) {
+	app.Post("/new", NewQuestion)
 	app.Post("/register", Register)
 	app.Post("/login", Login)
 	app.Post("/user", getUser)
@@ -71,8 +72,6 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/verify", VerifyAccount)
 	//app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
-
-	app.Post("/new_question", NewQuestion)
 
 }
 
