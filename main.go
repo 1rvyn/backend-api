@@ -62,7 +62,7 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
 	app.Get("/question/:id", Question)
-	app.Post("/questions", Questions)
+	app.Get("/questions", Questions)
 	app.Post("/new_question", CreateQuestion)
 	//app.Get("/mailgun", Mailgun)
 
@@ -192,6 +192,7 @@ func Question(c *fiber.Ctx) error {
 	// return the question to the user
 	return c.JSON(question)
 }
+
 func BugReport(c *fiber.Ctx) error {
 
 	// get the user from the cookie
