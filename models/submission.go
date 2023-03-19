@@ -5,7 +5,8 @@ import (
 )
 
 type Submission struct {
-	ID        uint `json:"id" gorm:"primaryKey"`
+	ID        uint   `json:"id" gorm:"primaryKey"`
+	Title     string `json:"title"`
 	CreatedAt time.Time
 	Code      string `json:"code" gorm:"unique"`
 	Language  string `json:"language"`

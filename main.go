@@ -46,7 +46,6 @@ func main() {
 	if err != nil {
 		return
 	}
-
 }
 
 func setupRoutes(app *fiber.App) {
