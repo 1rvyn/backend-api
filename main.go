@@ -61,7 +61,8 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/code", Code)
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
-	app.Post("/question/:id", Question)
+	app.Get("/question/:id", Question)
+	app.Post("/questions", Questions)
 	app.Post("/new_question", CreateQuestion)
 	//app.Get("/mailgun", Mailgun)
 
@@ -83,6 +84,7 @@ func getSession(c *fiber.Ctx) error {
 	})
 }
 
+// TODO: Protect this route behind admin perms only
 func CreateQuestion(c *fiber.Ctx) error {
 	fmt.Println("CreateQuestion handler HIT")
 
@@ -169,14 +171,26 @@ func VerifyAccount(c *fiber.Ctx) error {
 
 }
 
+// TODO: Only allow the frontend fiber app to access this route
+
+func Questions(c *fiber.Ctx) error {
+	// get all the questions from the database
+	var questions []models.Question
+	database.Database.Db.Find(&questions)
+
+	// return the questions to the user
+	return c.JSON(questions)
+}
+
+// TODO: Cache this / make it event driven
+
 func Question(c *fiber.Ctx) error {
-	// here we get the question from the ID in the url
+	// get the question with the ID from the URL
+	var question models.Question
+	database.Database.Db.Where("id = ?", c.Params("id")).First(&question)
 
-	// we search the questions DB for a question with ID = id from URL
-
-	// we return the question as an object to the user - reference to the models.Question struct
-
-	return c.JSON("good question" + c.Params("id"))
+	// return the question to the user
+	return c.JSON(question)
 }
 func BugReport(c *fiber.Ctx) error {
 
