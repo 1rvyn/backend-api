@@ -6,6 +6,7 @@ import (
 
 type Question struct {
 	ID                int             `json:"id" gorm:"primaryKey"`
+	Title             string          `json:"title"`
 	Problem           string          `json:"problem"`
 	ExampleAnswer     string          `json:"example_answer"`
 	ExampleInput      string          `json:"example_input"`
