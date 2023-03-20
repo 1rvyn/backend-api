@@ -635,7 +635,6 @@ func Logout(c *fiber.Ctx) error {
 	}
 	c.Cookie(&cookie) // this returns a cookie with the date that is expired
 
-	return c.JSON(fiber.Map{
-		"message": "successfully logged out",
-	})
+	// redirect to the "/" page
+	return c.Redirect("/")
 }
