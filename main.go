@@ -346,28 +346,20 @@ func Code(c *fiber.Ctx) error {
 
 	// else the cookie is valid, save the submission to the database & mark it as pending
 
-	//TODO: Set up getting the language from the frontend
 	submission := models.Submission{
-		Code:     data["codeitem"],
+		Code:     data["code"],
 		UserID:   session["userID"],
-		Language: "Python3",
+		Language: data["language"],
 		IP:       c.Get("X-Forwarded-For"),
 	}
 
 	database.Database.Db.Create(&submission)
 
-	// mark the submission and return the output string
-
-	successOut := utils.Marking(data["codeitem"])
-
-	if successOut == "" {
-		successOut += "Error: Code was not successful at running on the server."
-	}
+	//TODO: mark the submission and return the output string
 
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "code was submitted",
-		"output":  successOut,
 	})
 }
 
