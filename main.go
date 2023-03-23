@@ -5,11 +5,19 @@ import (
 	"authserver/models"
 	"authserver/utils"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
 	"time"
+
+	batchv1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
@@ -337,7 +345,7 @@ func Code(c *fiber.Ctx) error {
 			Message:    "Cookies didnt match",
 			CreatedAt:  time.Now(),
 			User:       session["userID"],
-			Submission: data["codeitem"],
+			Submission: data["code"],
 			IP:         c.Get("X-Forwarded-For"),
 		})
 		fmt.Println("\n Potential Malicious Activity Detected (Saved to errors table) - Cookies didnt match")
@@ -357,10 +365,99 @@ func Code(c *fiber.Ctx) error {
 
 	//TODO: mark the submission and return the output string
 
+	kubeconfigPath := "/root/.kube/config" // VPS path
+	err = runCodeJob(&submission, kubeconfigPath)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Failed to run code on GKE cluster",
+		})
+	}
+
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "code was submitted",
 	})
+}
+
+func runCodeJob(submission *models.Submission, kubeconfigPath string) error {
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
+	if err != nil {
+		return err
+	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return err
+	}
+
+	jobName := fmt.Sprintf("two-sum-python-%s", submission.ID)
+	imageName := "gcr.io/leetcode-377114/two_sum-python:latest"
+
+	// Create a ConfigMap with the user's code
+	configMap := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      jobName,
+			Namespace: "default",
+		},
+		Data: map[string]string{
+			"solution.py": submission.Code,
+		},
+	}
+
+	_, err = clientset.CoreV1().ConfigMaps("default").Create(context.Background(), configMap, metav1.CreateOptions{})
+	if err != nil {
+		return err
+	}
+
+	// Create the Job with the container that mounts the ConfigMap
+	job := &batchv1.Job{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      jobName,
+			Namespace: "default",
+		},
+		Spec: batchv1.JobSpec{
+			Template: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{
+					Volumes: []corev1.Volume{
+						{
+							Name: "code-volume",
+							VolumeSource: corev1.VolumeSource{
+								ConfigMap: &corev1.ConfigMapVolumeSource{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: jobName,
+									},
+								},
+							},
+						},
+					},
+					Containers: []corev1.Container{
+						{
+							Name:  jobName,
+							Image: imageName,
+							VolumeMounts: []corev1.VolumeMount{
+								{
+									Name:      "code-volume",
+									MountPath: "/app/solution.py",
+									SubPath:   "solution.py",
+								},
+							},
+						},
+					},
+					RestartPolicy: corev1.RestartPolicyNever,
+				},
+			},
+		},
+	}
+
+	_, err = clientset.BatchV1().Jobs("default").Create(context.Background(), job, metav1.CreateOptions{})
+	if errors.IsAlreadyExists(err) {
+		return nil
+	} else if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func Status(c *fiber.Ctx) error {
