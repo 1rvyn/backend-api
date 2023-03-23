@@ -5,5 +5,8 @@ FROM python:3.9-slim
 WORKDIR /app
 
 COPY test_cases.json /app/test_cases.json
+COPY run_tests.py /app/run_tests.py
 
-CMD ["python", "solution.py"]
+RUN pip install --no-cache-dir requests
+
+CMD ["python", "run_tests.py"]

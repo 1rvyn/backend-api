@@ -72,12 +72,30 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/question/:id", Question)
 	app.Get("/questions", Questions)
 	app.Post("/new_question", CreateQuestion)
+	app.Post("/results-endpoint", ResultsEndpoint)
 	//app.Get("/mailgun", Mailgun)
 
 	app.Get("/verify", VerifyAccount)
 	//app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
 
+}
+
+func ResultsEndpoint(c *fiber.Ctx) error {
+	// Parse the JSON payload
+	var payload map[string]interface{}
+	if err := json.Unmarshal(c.Body(), &payload); err != nil {
+		return err
+	}
+	// Extract submission_id and results
+	fmt.Println(payload["submission_id"], payload["results"])
+
+	// TODO: Update the submission record in your database with the results
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "results received",
+	})
 }
 
 func getSession(c *fiber.Ctx) error {
@@ -93,6 +111,7 @@ func getSession(c *fiber.Ctx) error {
 }
 
 // TODO: Protect this route behind admin perms only
+
 func CreateQuestion(c *fiber.Ctx) error {
 	fmt.Println("CreateQuestion handler HIT")
 
@@ -379,7 +398,6 @@ func Code(c *fiber.Ctx) error {
 		"message": "code was submitted",
 	})
 }
-
 func runCodeJob(submission *models.Submission, kubeconfigPath string) error {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
 	if err != nil {
@@ -394,23 +412,6 @@ func runCodeJob(submission *models.Submission, kubeconfigPath string) error {
 	jobName := fmt.Sprintf("two-sum-python-%s", submission.ID)
 	imageName := "gcr.io/leetcode-377114/two_sum-python:latest"
 
-	// Create a ConfigMap with the user's code
-	configMap := &corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      jobName,
-			Namespace: "default",
-		},
-		Data: map[string]string{
-			"solution.py": submission.Code,
-		},
-	}
-
-	_, err = clientset.CoreV1().ConfigMaps("default").Create(context.Background(), configMap, metav1.CreateOptions{})
-	if err != nil {
-		return err
-	}
-
-	// Create the Job with the container that mounts the ConfigMap
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      jobName,
@@ -419,27 +420,18 @@ func runCodeJob(submission *models.Submission, kubeconfigPath string) error {
 		Spec: batchv1.JobSpec{
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
-					Volumes: []corev1.Volume{
-						{
-							Name: "code-volume",
-							VolumeSource: corev1.VolumeSource{
-								ConfigMap: &corev1.ConfigMapVolumeSource{
-									LocalObjectReference: corev1.LocalObjectReference{
-										Name: jobName,
-									},
-								},
-							},
-						},
-					},
 					Containers: []corev1.Container{
 						{
 							Name:  jobName,
 							Image: imageName,
-							VolumeMounts: []corev1.VolumeMount{
+							Env: []corev1.EnvVar{
 								{
-									Name:      "code-volume",
-									MountPath: "/app/solution.py",
-									SubPath:   "solution.py",
+									Name:  "USER_CODE",
+									Value: submission.Code,
+								},
+								{
+									Name:  "SUBMISSION_ID",
+									Value: strconv.Itoa(int(submission.ID)),
 								},
 							},
 						},
