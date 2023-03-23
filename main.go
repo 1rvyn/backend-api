@@ -385,8 +385,10 @@ func Code(c *fiber.Ctx) error {
 	//TODO: mark the submission and return the output string
 
 	kubeconfigPath := "/root/.kube/config" // VPS path
+	fmt.Println("Calling runCodeJob")
 	err = runCodeJob(&submission, kubeconfigPath)
 	if err != nil {
+		fmt.Println("Error from runCodeJob:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Failed to run code on GKE cluster",
@@ -442,6 +444,7 @@ func runCodeJob(submission *models.Submission, kubeconfigPath string) error {
 		},
 	}
 
+	fmt.Println("Creating Kubernetes Job")
 	_, err = clientset.BatchV1().Jobs("default").Create(context.Background(), job, metav1.CreateOptions{})
 	if errors.IsAlreadyExists(err) {
 		return nil
