@@ -308,6 +308,8 @@ func Code(c *fiber.Ctx) error {
 
 	cookie := c.Cookies("jwt")
 
+	fmt.Println("data is: ", data)
+
 	// validate the cookie
 	claims, err := utils.GetClaimsFromCookie(cookie, SecretKey)
 	if err != nil {
