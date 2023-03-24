@@ -411,7 +411,7 @@ func runCodeJob(submission *models.Submission, kubeconfigPath string) error {
 		return err
 	}
 
-	jobName := fmt.Sprintf("two-sum-python-%s", submission.ID)
+	jobName := fmt.Sprintf("two-sum-python-%d", submission.ID)
 	imageName := "gcr.io/leetcode-377114/two_sum-python:latest"
 
 	job := &batchv1.Job{
