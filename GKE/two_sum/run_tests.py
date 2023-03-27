@@ -4,28 +4,44 @@ import requests
 import solution
 
 def run_tests(test_cases, user_code):
-    # Run your test cases against the user_code here
-    # You should return a JSON serializable object with the results
-    pass
+    results = []
 
-if __name__ == "__main__":
-    user_code = os.environ.get("USER_CODE")
-    test_cases_path = "/app/test_cases.json"
+    # Write user code to a temporary file
+    with open("user_code.py", "w") as f:
+        f.write(user_code)
 
-    with open(test_cases_path, "r") as f:
-        test_cases = json.load(f)
+    # Import the user's code
+    import user_code as user_solution
 
-    results = run_tests(test_cases, user_code)
+    # Iterate through test cases
+    for i, test_case in enumerate(test_cases):
+        # Get the input and expected output
+        input_data = test_case["input"]
+        expected_output = test_case["output"]
 
-    results_file = "/app/results.json"
-    with open(results_file, "w") as f:
-        json.dump(results, f)
+        try:
+            # Run the user's function
+            user_output = user_solution.two_sum(*input_data)
+        except Exception as e:
+            results.append({
+                "test_case": i + 1,
+                "status": "failed",
+                "error": str(e)
+            })
+            continue
 
-    # Send the results back to your application
-    post_url = "https://api.irvyn.xyz/results-endpoint"
-    data = {
-        "submission_id": os.environ.get("SUBMISSION_ID"),
-        "results": results
-    }
-    headers = {"Content-Type": "application/json"}
-    requests.post(post_url, data=json.dumps(data), headers=headers)
+        # Compare the user's output with the expected output
+        if user_output == expected_output:
+            results.append({
+                "test_case": i + 1,
+                "status": "passed"
+            })
+        else:
+            results.append({
+                "test_case": i + 1,
+                "status": "failed",
+                "expected": expected_output,
+                "received": user_output
+            })
+
+    return results

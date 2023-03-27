@@ -400,6 +400,7 @@ func Code(c *fiber.Ctx) error {
 		"message": "code was submitted",
 	})
 }
+
 func runCodeJob(submission *models.Submission, kubeconfigPath string) error {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
 	if err != nil {
