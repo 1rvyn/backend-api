@@ -1,7 +1,8 @@
-from flask import Flask, request
-import requests
-import subprocess
-import json
+import os
+import unittest
+from io import StringIO
+from unittest import TextTestRunner
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
@@ -10,26 +11,20 @@ def run_tests():
     code = request.files['code']
     code.save('submitted_code.py')
 
-    result = subprocess.run(["python", "run_tests.py"], capture_output=True, text=True)
-    test_output = result.stdout
+    # Run the tests
+    suite = unittest.TestLoader().loadTestsFromName('test_two_sum')
+    with StringIO() as test_output:
+        test_result = TextTestRunner(stream=test_output, verbosity=2).run(suite)
 
-    # Parse test_output into a dictionary of test results
-    test_results = parse_test_output(test_output)
+    # Parse test results
+    test_results = {
+        f"test {i + 1}": not case.failureException in case.errors for i, case in enumerate(test_result.result)
+    }
 
-    response = requests.post('https://api.irvyn.xyz/tested', json=test_results)
+    # Delete submitted code file
+    os.remove('submitted_code.py')
 
-    return test_results
-
-def parse_test_output(test_output):
-    # Implement this function to parse the test_output string
-    # and create a dictionary with the format:
-    # {
-    #   "test 1": True,
-    #   "test 2": True,
-    #   "test 3": False,
-    #   ...
-    # }
-    pass
+    return jsonify(test_results)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)

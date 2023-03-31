@@ -1,4 +1,3 @@
-# deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,6 +14,6 @@ spec:
     spec:
       containers:
         - name: two-sum-python
-          image: gcr.io/leetcode-377114/two_sum-python:latest
+          image: gcr.io/your-project-id/two_sum-python:v2
           ports:
             - containerPort: 8080

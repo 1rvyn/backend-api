@@ -8,8 +8,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"mime/multipart"
+	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	batchv1 "k8s.io/api/batch/v1"
@@ -405,14 +409,14 @@ func Code(c *fiber.Ctx) error {
 
 	//TODO: mark the submission and return the output string
 
-	kubeconfigPath := "/root/.kube/config" // VPS path
-	fmt.Println("Calling runCodeJob")
-	err = runCodeJob(&submission, kubeconfigPath)
+	// Send submitted code to the Flask API
+	flaskAPIEndpoint := "http://http://34.88.40.188:80/run_tests"
+	err = sendCodeToFlaskAPI(flaskAPIEndpoint, data["code"])
 	if err != nil {
-		fmt.Println("Error from runCodeJob:", err)
+		fmt.Println("Error sending code to Flask API:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
-			"message": "Failed to run code on GKE cluster",
+			"message": "Failed to send code to Flask API",
 		})
 	}
 
@@ -420,6 +424,44 @@ func Code(c *fiber.Ctx) error {
 		"status":  "success",
 		"message": "code was submitted",
 	})
+}
+
+// send as bytes which is more efficient
+func sendCodeToFlaskAPI(url, code string) error {
+	// Prepare a buffer to hold the form data
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+
+	// Add the submitted code as a file field to the form
+	fw, err := w.CreateFormFile("code", "submitted_code.py")
+	if err != nil {
+		return err
+	}
+	_, err = io.Copy(fw, strings.NewReader(code))
+	if err != nil {
+		return err
+	}
+	w.Close()
+
+	// Send a POST request with the form data
+	req, err := http.NewRequest("POST", url, &b)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", w.FormDataContentType())
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code from Flask API: %d", resp.StatusCode)
+	}
+
+	return nil
 }
 
 func runCodeJob(submission *models.Submission, kubeconfigPath string) error {
