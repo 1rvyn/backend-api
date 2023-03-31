@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: two-sum-python
-          image: gcr.io/your-project-id/two_sum-python:v2
+          image: gcr.io/your-project-id/two_sum-python:v3
           ports:
             - containerPort: 8080
