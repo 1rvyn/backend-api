@@ -73,12 +73,33 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/questions", Questions)
 	app.Post("/new_question", CreateQuestion)
 	app.Post("/results-endpoint", ResultsEndpoint)
+
+	app.Post("/tested", Tested) // endpoint to return the GKE job status
 	//app.Get("/mailgun", Mailgun)
 
 	app.Get("/verify", VerifyAccount)
 	//app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
 
+}
+
+func Tested(c *fiber.Ctx) error {
+	// Parse the JSON payload
+	var payload map[string]interface{}
+	if err := json.Unmarshal(c.Body(), &payload); err != nil {
+		return err
+	}
+
+	fmt.Println("Tested endpoint hit \n", payload)
+	// Extract submission_id and results
+	//fmt.Println(payload["submission_id"], payload["results"])
+
+	// TODO: Update the submission record in your database with the results
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "results received",
+	})
 }
 
 func ResultsEndpoint(c *fiber.Ctx) error {

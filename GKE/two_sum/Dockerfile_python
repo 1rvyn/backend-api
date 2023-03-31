@@ -1,12 +1,12 @@
 # two_sum/Dockerfile_python
 
-FROM python:3.9.9-slim-bullseye
+FROM python:3.9
 
 WORKDIR /app
 
-COPY test_cases.json /app/test_cases.json
-COPY run_tests.py /app/run_tests.py
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
-RUN pip install --no-cache-dir requests
+COPY . .
 
-CMD ["python", "run_tests.py"]
+CMD ["python", "api.py"]
