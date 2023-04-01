@@ -427,7 +427,7 @@ func sendCodeToFlaskAPI(url, code string) (string, error) {
 	w := multipart.NewWriter(&b)
 
 	// Add the submitted code as a file field to the form
-	fw, err := w.CreateFormFile("code", "submitted_code.py")
+	fw, err := w.CreateFormFile("code", "two_sum.py")
 	if err != nil {
 		return "", err
 	}

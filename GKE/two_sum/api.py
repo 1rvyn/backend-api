@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import unittest
 from io import StringIO
@@ -20,13 +21,17 @@ def run_tests():
 
     # Parse test results
     test_results = {
-        f"test {i + 1}": not case.failureException in case.errors for i, case in enumerate(test_result.result)
+        f"test {i + 1}": not any(case == failed_case for failed_case, _ in test_result.failures) and
+                         not any(case == error_case for error_case, _ in test_result.errors)
+        for i, case in enumerate(suite)
     }
 
     # Delete submitted code file
     os.remove('submitted_code.py')
 
     return jsonify({"result": test_results})
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
