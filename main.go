@@ -422,6 +422,7 @@ func Code(c *fiber.Ctx) error {
 
 // send as bytes which is more efficient
 func sendCodeToFlaskAPI(url, code string) (string, error) {
+	fmt.Println("Sending code to Flask API:", code)
 	// Prepare a buffer to hold the form data
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
