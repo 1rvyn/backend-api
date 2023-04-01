@@ -463,6 +463,8 @@ func sendCodeToFlaskAPI(url, code string) (string, error) {
 	}
 	bodyString := string(bodyBytes)
 
+	fmt.Println("BODY STRING from Flask API:", bodyString)
+
 	return bodyString, nil
 }
 
