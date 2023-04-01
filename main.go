@@ -397,7 +397,6 @@ func Code(c *fiber.Ctx) error {
 		IP:       c.Get("X-Forwarded-For"),
 	}
 
-	fmt.Println("creating submission: ", &submission)
 	database.Database.Db.Create(&submission)
 
 	//TODO: mark the submission and return the output string
@@ -447,6 +446,8 @@ func sendCodeToFlaskAPI(url, code string) (string, error) {
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
+	fmt.Println("Response from Flask API:", resp)
+	fmt.Println("Response body from Flask API:", resp.Body)
 	if err != nil {
 		return "", err
 	}
