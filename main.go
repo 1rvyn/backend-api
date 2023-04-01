@@ -410,7 +410,7 @@ func Code(c *fiber.Ctx) error {
 	//TODO: mark the submission and return the output string
 
 	// Send submitted code to the Flask API
-	flaskAPIEndpoint := "http://34.88.40.188:80/run_tests"
+	flaskAPIEndpoint := "http://34.88.40.188/run_tests"
 	err = sendCodeToFlaskAPI(flaskAPIEndpoint, data["code"])
 	if err != nil {
 		fmt.Println("Error sending code to Flask API:", err)
