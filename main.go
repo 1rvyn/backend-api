@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -398,6 +397,7 @@ func Code(c *fiber.Ctx) error {
 		IP:       c.Get("X-Forwarded-For"),
 	}
 
+	fmt.Println("creating submission: ", &submission)
 	database.Database.Db.Create(&submission)
 
 	//TODO: mark the submission and return the output string
@@ -456,7 +456,7 @@ func sendCodeToFlaskAPI(url, code string) (string, error) {
 		return "", fmt.Errorf("unexpected status code from Flask API: %d", resp.StatusCode)
 	}
 
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
