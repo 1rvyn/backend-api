@@ -412,10 +412,25 @@ func Code(c *fiber.Ctx) error {
 		})
 	}
 
+	// parse the response string into a JSON object
+	fmt.Println("Response from Flask API:", responseString)
+	var results []models.TestResult
+
+	err = json.Unmarshal([]byte(responseString), &results)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Failed to parse response from Flask API",
+		})
+	}
+
+	fmt.Println("Results from Flask API after parsed into results struct:", results)
+
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "code was submitted",
-		"result":  responseString,
+		"result":  results,
 	})
 }
 
@@ -446,8 +461,7 @@ func sendCodeToFlaskAPI(url, code string) (string, error) {
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
-	fmt.Println("Response from Flask API:", resp)
-	fmt.Println("Response body from Flask API:", resp.Body)
+
 	if err != nil {
 		return "", err
 	}
