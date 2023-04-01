@@ -5,23 +5,16 @@ import (
 	"authserver/models"
 	"authserver/utils"
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
-
-	batchv1 "k8s.io/api/batch/v1"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
@@ -411,7 +404,7 @@ func Code(c *fiber.Ctx) error {
 
 	// Send submitted code to the Flask API
 	flaskAPIEndpoint := "http://34.88.40.188/run_tests"
-	err = sendCodeToFlaskAPI(flaskAPIEndpoint, data["code"])
+	responseString, err := sendCodeToFlaskAPI(flaskAPIEndpoint, data["code"])
 	if err != nil {
 		fmt.Println("Error sending code to Flask API:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -423,11 +416,12 @@ func Code(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "code was submitted",
+		"result":  responseString,
 	})
 }
 
 // send as bytes which is more efficient
-func sendCodeToFlaskAPI(url, code string) error {
+func sendCodeToFlaskAPI(url, code string) (string, error) {
 	// Prepare a buffer to hold the form data
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
@@ -435,88 +429,39 @@ func sendCodeToFlaskAPI(url, code string) error {
 	// Add the submitted code as a file field to the form
 	fw, err := w.CreateFormFile("code", "submitted_code.py")
 	if err != nil {
-		return err
+		return "", err
 	}
 	_, err = io.Copy(fw, strings.NewReader(code))
 	if err != nil {
-		return err
+		return "", err
 	}
 	w.Close()
 
 	// Send a POST request with the form data
 	req, err := http.NewRequest("POST", url, &b)
 	if err != nil {
-		return err
+		return "", err
 	}
 	req.Header.Set("Content-Type", w.FormDataContentType())
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code from Flask API: %d", resp.StatusCode)
+		return "", fmt.Errorf("unexpected status code from Flask API: %d", resp.StatusCode)
 	}
 
-	return nil
-}
-
-func runCodeJob(submission *models.Submission, kubeconfigPath string) error {
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return "", err
 	}
+	bodyString := string(bodyBytes)
 
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return err
-	}
-
-	jobName := fmt.Sprintf("two-sum-python-%d", submission.ID)
-	imageName := "gcr.io/leetcode-377114/two_sum-python:latest"
-
-	job := &batchv1.Job{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      jobName,
-			Namespace: "default",
-		},
-		Spec: batchv1.JobSpec{
-			Template: corev1.PodTemplateSpec{
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
-						{
-							Name:  jobName,
-							Image: imageName,
-							Env: []corev1.EnvVar{
-								{
-									Name:  "USER_CODE",
-									Value: submission.Code,
-								},
-								{
-									Name:  "SUBMISSION_ID",
-									Value: strconv.Itoa(int(submission.ID)),
-								},
-							},
-						},
-					},
-					RestartPolicy: corev1.RestartPolicyNever,
-				},
-			},
-		},
-	}
-
-	fmt.Println("Creating Kubernetes Job")
-	_, err = clientset.BatchV1().Jobs("default").Create(context.Background(), job, metav1.CreateOptions{})
-	if errors.IsAlreadyExists(err) {
-		return nil
-	} else if err != nil {
-		return err
-	}
-
-	return nil
+	return bodyString, nil
 }
 
 func Status(c *fiber.Ctx) error {
