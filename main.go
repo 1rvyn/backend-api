@@ -24,6 +24,7 @@ import (
 var SALT = os.Getenv("SALT")
 var SecretKey = os.Getenv("JWT_SECRET")
 var RedisSessionKey = os.Getenv("REDIS_SECRET")
+var Flask = os.Getenv("FLASK_API_ENDPOINT")
 
 func main() {
 	database.ConnectDb()
@@ -402,7 +403,7 @@ func Code(c *fiber.Ctx) error {
 	//TODO: mark the submission and return the output string
 
 	// Send submitted code to the Flask API
-	flaskAPIEndpoint := os.Getenv("FLASK_API_ENDPOINT")
+	flaskAPIEndpoint := os.Getenv(Flask)
 	fmt.Println("Flask API env var is:", flaskAPIEndpoint)
 	responseString, err := sendCodeToFlaskAPI(flaskAPIEndpoint, data["code"])
 	if err != nil {
