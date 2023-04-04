@@ -95,7 +95,7 @@ func Admin(c *fiber.Ctx) error {
 	fmt.Println(session)
 
 	// check if the user is an admin
-	if session["admin"] == "true" {
+	if session["role"] == "2" {
 		return c.SendStatus(200)
 	} else {
 		return c.SendStatus(403)
