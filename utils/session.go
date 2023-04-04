@@ -6,15 +6,23 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"os"
+	"strings"
 )
 
 var SecretKey = os.Getenv("JWT_SECRET")
 
 func GetSession(c *fiber.Ctx) (map[string]string, error) {
-	cookie := c.Cookies("jwt")
-	if cookie == "" {
-		return nil, errors.New("no JWT cookie found")
+
+	authHeader := c.Get("Authorization")
+	if authHeader == "" {
+		return nil, errors.New("no JWT found in the Authorization header")
 	}
+
+	if !strings.HasPrefix(authHeader, "Bearer ") {
+		return nil, errors.New("invalid Authorization header format")
+	}
+
+	cookie := strings.TrimPrefix(authHeader, "Bearer ")
 
 	fmt.Println("cookie is: ", cookie)
 	claims, err := GetClaimsFromCookie(cookie, SecretKey)
