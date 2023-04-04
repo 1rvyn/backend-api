@@ -76,8 +76,27 @@ func setupRoutes(app *fiber.App) {
 	//app.Get("/mailgun", Mailgun)
 
 	app.Get("/verify", VerifyAccount)
+
+	app.Post("/admin", Admin)
 	//app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
+
+}
+
+func Admin(c *fiber.Ctx) error {
+	// Get the cookie from the request
+	session, err := utils.GetSession(c)
+	if err != nil {
+		return err
+	}
+	fmt.Println(session)
+
+	// check if the user is an admin
+	if session["admin"] == "true" {
+		return c.SendStatus(200)
+	} else {
+		return c.SendStatus(403)
+	}
 
 }
 
@@ -406,7 +425,6 @@ func Code(c *fiber.Ctx) error {
 	// Send submitted code to the Flask API
 	flaskAPIEndpoint := os.Getenv("FLASK_API_ENDPOINT")
 
-	fmt.Println("Flask API env var is:", flaskAPIEndpoint)
 	responseString, err := sendCodeToFlaskAPI(flaskAPIEndpoint, data["code"])
 	if err != nil {
 		fmt.Println("Error sending code to Flask API:", err)
