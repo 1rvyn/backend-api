@@ -5,10 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"os"
 )
 
-var SecretKey = os.Getenv("JWT_SECRET")
+//var SecretKey = os.Getenv("JWT_SECRET")
 
 func GetSession(c *fiber.Ctx) (map[string]string, error) {
 
@@ -18,14 +17,8 @@ func GetSession(c *fiber.Ctx) (map[string]string, error) {
 	}
 
 	fmt.Println("X-JWT is: ", jwt)
-	claims, err := GetClaimsFromCookie(jwt, SecretKey)
-	if err != nil {
-		return nil, err
-	}
 
-	fmt.Println("claims are: ", claims)
-
-	session, err := database.Redis.GetHMap(claims.Id)
+	session, err := database.Redis.GetHMap(jwt)
 	if err != nil {
 		return nil, err
 	}
