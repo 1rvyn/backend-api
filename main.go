@@ -85,6 +85,7 @@ func setupRoutes(app *fiber.App) {
 
 func Admin(c *fiber.Ctx) error {
 	// Get the cookie from the request
+	fmt.Println("Admin handler HIT")
 	session, err := utils.GetSession(c)
 	if err != nil {
 		return err
