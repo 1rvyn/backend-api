@@ -77,7 +77,7 @@ func setupRoutes(app *fiber.App) {
 
 	app.Get("/verify", VerifyAccount)
 
-	app.Post("/admin", Admin)
+	app.Get("/admin", Admin)
 	//app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
 
