@@ -774,5 +774,5 @@ func Logout(c *fiber.Ctx) error {
 	c.Cookie(&cookie) // this returns a cookie with the date that is expired
 
 	// redirect to the "/" page
-	return c.Redirect("/")
+	return c.Redirect("https://irvyn.xyz", 301)
 }
