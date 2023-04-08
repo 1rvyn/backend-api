@@ -14,7 +14,9 @@ package main
 import (
 	"fmt"
 	"reflect"
-)` + code + `
+)
+
+` + code + `
 
 func main() {
 	testCases := ` + testCases + `
