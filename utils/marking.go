@@ -7,8 +7,10 @@ import (
 	"os/exec"
 )
 
-func Marking(code string) string {
+func Marking(code, questionID string) string {
 	// This is the function I will use to mark the code snippet
+	fmt.Println("the code is: ", code)
+	fmt.Println("the question ID is: ", questionID)
 	file, err := os.Create("./remotecode/code.py")
 	if err != nil {
 		panic(err)
