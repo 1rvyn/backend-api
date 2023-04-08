@@ -430,52 +430,53 @@ func Code(c *fiber.Ctx) error {
 
 	//TODO: mark the submission and return the output string
 
-	fmt.Println("data question is ", data["QuestionID"], " and data language is ", data["language"])
-
 	if questionID, ok := data["QuestionID"]; ok && questionID == "1" && data["language"] == "python" {
 		fmt.Println("QuestionID is 1 and language is python")
-		// Add your desired code here
-		return c.SendStatus(200)
+		// Send submitted code to the Flask API
+		flaskAPIEndpoint := os.Getenv("FLASK_API_ENDPOINT")
+
+		responseString, err := sendCodeToFlaskAPI(flaskAPIEndpoint, data["code"])
+		if err != nil {
+			fmt.Println("Error sending code to Flask API:", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Failed to send code to Flask API",
+			})
+		}
+
+		// parse the response string into a JSON object
+		fmt.Println("Response from Flask API:", responseString)
+		var results []models.TestResult
+
+		err = json.Unmarshal([]byte(responseString), &results)
+		if err != nil {
+			fmt.Println("Error unmarshalling JSON:", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Failed to parse response from Flask API",
+			})
+		}
+
+		fmt.Println("Results from Flask API after parsed into results struct:", results)
+
+		return c.JSON(fiber.Map{
+			"status":  "success",
+			"message": "code was submitted",
+			"result":  results,
+		})
+
 	} else {
-		fmt.Println("we got a submission that isn't meant for GKE")
+		fmt.Println("we got a submission that isn't meant for GKE :) ")
 		// use the local marking system
-		//output := utils.Marking(data["code"], data["QuestionID"])
-		//fmt.Println("the output from marking is: ", output)
-		return c.SendStatus(200)
-	}
-
-	// Send submitted code to the Flask API
-	flaskAPIEndpoint := os.Getenv("FLASK_API_ENDPOINT")
-
-	responseString, err := sendCodeToFlaskAPI(flaskAPIEndpoint, data["code"])
-	if err != nil {
-		fmt.Println("Error sending code to Flask API:", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"status":  "error",
-			"message": "Failed to send code to Flask API",
+		output := utils.Marking(data["code"], data["QuestionID"])
+		fmt.Println("the output from marking is: ", output)
+		return c.JSON(fiber.Map{
+			"status":  "success",
+			"message": "code was submitted",
+			//"result":  results,
 		})
 	}
 
-	// parse the response string into a JSON object
-	fmt.Println("Response from Flask API:", responseString)
-	var results []models.TestResult
-
-	err = json.Unmarshal([]byte(responseString), &results)
-	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"status":  "error",
-			"message": "Failed to parse response from Flask API",
-		})
-	}
-
-	fmt.Println("Results from Flask API after parsed into results struct:", results)
-
-	return c.JSON(fiber.Map{
-		"status":  "success",
-		"message": "code was submitted",
-		"result":  results,
-	})
 }
 
 // send as bytes which is more efficient
