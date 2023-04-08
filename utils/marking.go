@@ -167,7 +167,7 @@ func runGoCode(userID, code, questionID, filext string) (string, string) {
 		panic(err)
 	}
 
-	cmd := exec.Command("go run", "./remotecode/"+userID+"."+filext)
+	cmd := exec.Command("go", "run", "./remotecode/"+userID+"."+filext)
 
 	var outBuf, errBuf bytes.Buffer
 
