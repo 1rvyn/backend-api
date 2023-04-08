@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -578,39 +579,38 @@ func Login(c *fiber.Ctx) error {
 			}
 			c.Cookie(&cookie)
 
-			// make new token to represent the session
-			sessionToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-				Issuer:    strconv.Itoa(int(user.ID)),
-				ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), //1 day
-			}).SignedString([]byte(RedisSessionKey))
-
-			if err != nil {
-				c.Status(fiber.StatusInternalServerError)
-				return c.JSON(fiber.Map{
-					"message": "could not create session",
-				})
-			}
-
 			//fmt.Println("\n The x-forwarded-for header is: ", c.Get("X-Forwarded-For"))
+			go func() {
 
-			session := make(map[string]interface{})
-			session["sessionID"] = sessionToken
-			session["userID"] = user.ID
-			session["token"] = token
-			session["email"] = user.Email
-			session["username"] = user.Name
-			session["ip"] = c.Get("X-Forwarded-For")
-			session["agent"] = c.Get("User-Agent")
-			session["role"] = user.UserRole
-			session["created_at"] = time.Now().Format("2006-01-02 15:04:05")
+				// make new token to represent the session
+				sessionToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+					Issuer:    strconv.Itoa(int(user.ID)),
+					ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), //1 day
+				}).SignedString([]byte(RedisSessionKey))
 
-			// save the token in redis with their userID as their key
-			err = database.Redis.PutHMap(token, session)
-			if err != nil {
-				return err
-			} else {
-				fmt.Println("\nsuccessfully saved session to redis")
-			}
+				if err != nil {
+					log.Println("Error creating session token:", err) // Log the error instead of returning it
+				}
+
+				session := make(map[string]interface{})
+				session["sessionID"] = sessionToken
+				session["userID"] = user.ID
+				session["token"] = token
+				session["email"] = user.Email
+				session["username"] = user.Name
+				session["ip"] = c.Get("X-Forwarded-For")
+				session["agent"] = c.Get("User-Agent")
+				session["role"] = user.UserRole
+				session["created_at"] = time.Now().Format("2006-01-02 15:04:05")
+
+				// save the token in redis with their userID as their key
+				err = database.Redis.PutHMap(token, session)
+				if err != nil {
+					log.Println("Error creating session:", err) // Log the error instead of returning it
+				} else {
+					fmt.Println("\nsuccessfully saved session to redis")
+				}
+			}()
 
 			return c.JSON(fiber.Map{
 				"message": "successfully logged in",
