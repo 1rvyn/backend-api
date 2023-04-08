@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/golang-jwt/jwt"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
@@ -52,6 +53,7 @@ func main() {
 	if err != nil {
 		return
 	}
+
 }
 
 func setupRoutes(app *fiber.App) {
@@ -80,6 +82,8 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/admin", Admin)
 	//app.Post("/vemail", VerifyEmail)
 	// app.Post("/api/test1", test1)
+
+	app.Use(pprof.New())
 
 }
 
