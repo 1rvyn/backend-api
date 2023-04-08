@@ -468,7 +468,7 @@ func Code(c *fiber.Ctx) error {
 	} else {
 		fmt.Println("we got a submission that isn't meant for GKE :) ")
 		// use the local marking system
-		output := utils.Marking(data["code"], data["QuestionID"])
+		output := utils.Marking(data["code"], data["QuestionID"], session["userID"], data["language"])
 		fmt.Println("the output from marking is: ", output)
 		return c.JSON(fiber.Map{
 			"status":  "success",
