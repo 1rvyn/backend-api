@@ -580,7 +580,11 @@ func Login(c *fiber.Ctx) error {
 			c.Cookie(&cookie)
 
 			//fmt.Println("\n The x-forwarded-for header is: ", c.Get("X-Forwarded-For"))
-			go func() {
+
+			ip := c.Get("X-Forwarded-For")
+			agent := c.Get("User-Agent")
+			// we dont pass the C across goroutines because it is not thread safe
+			go func(ip, agent string) {
 
 				// make new token to represent the session
 				sessionToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
@@ -598,8 +602,8 @@ func Login(c *fiber.Ctx) error {
 				session["token"] = token
 				session["email"] = user.Email
 				session["username"] = user.Name
-				session["ip"] = c.Get("X-Forwarded-For")
-				session["agent"] = c.Get("User-Agent")
+				session["ip"] = ip
+				session["agent"] = agent
 				session["role"] = user.UserRole
 				session["created_at"] = time.Now().Format("2006-01-02 15:04:05")
 
@@ -610,7 +614,7 @@ func Login(c *fiber.Ctx) error {
 				} else {
 					fmt.Println("\nsuccessfully saved session to redis")
 				}
-			}()
+			}(ip, agent)
 
 			return c.JSON(fiber.Map{
 				"message": "successfully logged in",

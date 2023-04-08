@@ -6,3 +6,10 @@
 .air.toml
 env.txt
 .env
+/test/20login-dublin.png
+/test/20login-virginia.png
+/test/graph.html
+/test/na-redis.html
+/test/result.bin
+/test/vegeta-plot.png
+/test/vegeta-plot (1).png
