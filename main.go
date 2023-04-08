@@ -432,11 +432,16 @@ func Code(c *fiber.Ctx) error {
 
 	fmt.Println("data question is ", data["QuestionID"], " and data language is ", data["language"])
 
-	if data["QuestionID"] != "1" && data["language"] != "python" {
-		fmt.Println("we got a submission that isnt meant for GKE")
+	if questionID, ok := data["QuestionID"]; ok && questionID == "1" && data["language"] == "python" {
+		fmt.Println("QuestionID is 1 and language is python")
+		// Add your desired code here
+		return c.SendStatus(200)
+	} else {
+		fmt.Println("we got a submission that isn't meant for GKE")
 		// use the local marking system
-		output := utils.Marking(data["code"], data["QuestionID"])
-		fmt.Println("the output from marking is: ", output)
+		//output := utils.Marking(data["code"], data["QuestionID"])
+		//fmt.Println("the output from marking is: ", output)
+		return c.SendStatus(200)
 	}
 
 	// Send submitted code to the Flask API
