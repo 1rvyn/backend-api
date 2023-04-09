@@ -71,6 +71,7 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
 	app.Get("/question/:id/:language", Question)
+	app.Get("/questionall/:id", Questionall)
 	app.Get("/questions", Questions)
 	app.Post("/new_question", CreateQuestion)
 	app.Post("/results-endpoint", ResultsEndpoint)
@@ -286,6 +287,17 @@ func Question(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(response)
+}
+
+func Questionall(c *fiber.Ctx) error {
+	// get the question with the ID from the URL
+	id := c.Params("id")
+	fmt.Println("the id is: ", id)
+
+	var question models.Question
+	database.Database.Db.Where("id = ?", c.Params("id")).First(&question)
+
+	return c.JSON(question)
 }
 
 func BugReport(c *fiber.Ctx) error {
