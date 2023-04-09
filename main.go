@@ -267,14 +267,16 @@ func Question(c *fiber.Ctx) error {
 	var question models.Question
 	database.Database.Db.Where("id = ?", c.Params("id")).First(&question)
 
+	fmt.Println(question.TemplateCode)
+
 	// return the question to the user
 	switch language {
 	case "python":
-		return c.JSON(question.TemplateCode[1])
+		return c.JSON(question.TemplateCode)
 	case "javascript":
-		return c.JSON(question.TemplateCode[2])
+		return c.JSON(question.TemplateCode)
 	case "go":
-		return c.JSON(question.TemplateCode[3])
+		return c.JSON(question.TemplateCode)
 	}
 
 	return c.SendStatus(400)
