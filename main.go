@@ -70,7 +70,7 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/code", Code)
 	app.Post("/account", Account) // return users account from their cookie
 	app.Post("/bugreport", BugReport)
-	app.Get("/question/:id", Question)
+	app.Get("/question/:id/:language", Question)
 	app.Get("/questions", Questions)
 	app.Post("/new_question", CreateQuestion)
 	app.Post("/results-endpoint", ResultsEndpoint)
@@ -259,6 +259,11 @@ func Questions(c *fiber.Ctx) error {
 
 func Question(c *fiber.Ctx) error {
 	// get the question with the ID from the URL
+	id := c.Params("id")
+	language := c.Query("language")
+	fmt.Println("the language is: ", language)
+	fmt.Println("the id is: ", id)
+
 	var question models.Question
 	database.Database.Db.Where("id = ?", c.Params("id")).First(&question)
 
