@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -12,6 +13,7 @@ func wrapGoCodeWithTests(userID, code, filext, testCases string) string {
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 )
@@ -21,18 +23,22 @@ import (
 func main() {
 	testCases := ` + testCases + `
 
-	passed := 0
-	for i, tc := range testCases {
+	results := []bool{}
+	for _, tc := range testCases {
 		result := twoSum(tc.inputNums, tc.inputTarget)
 		if reflect.DeepEqual(result, tc.expected) {
-			passed++
-			fmt.Printf("Test case %d passed\n", i)
+			results = append(results, true)
 		} else {
-			fmt.Printf("Test case %d failed: expected %v, got %v\n", i, tc.expected, result)
+			results = append(results, false)
 		}
 	}
 
-	fmt.Printf("Passed %d out of %d test cases\n", passed, len(testCases))
+	resultsJSON, err := json.Marshal(results)
+	if err != nil {
+		fmt.Println("Error encoding results to JSON")
+		return
+	}
+	fmt.Println(string(resultsJSON))
 }
 `
 	return testCode
@@ -287,6 +293,13 @@ func Marking(code, questionID, userID, language string) string {
 		fmt.Println("Error: ", errorOutput)
 		return errorOutput
 	} else {
-		return output
+		var results []bool
+		err := json.Unmarshal([]byte(output), &results)
+		if err != nil {
+			fmt.Println("Error decoding JSON: ", err)
+			return "Error decoding JSON"
+		}
+		resultsJSON, _ := json.Marshal(results)
+		return string(resultsJSON)
 	}
 }

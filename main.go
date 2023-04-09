@@ -474,7 +474,7 @@ func Code(c *fiber.Ctx) error {
 			"status":  "success",
 			"message": "code was submitted",
 			//"result":  results,
-			"output": output,
+			"result": output,
 		})
 	}
 
