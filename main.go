@@ -260,7 +260,7 @@ func Questions(c *fiber.Ctx) error {
 func Question(c *fiber.Ctx) error {
 	// get the question with the ID from the URL
 	id := c.Params("id")
-	language := c.Query("language")
+	language := c.Params("language")
 	fmt.Println("the language is: ", language)
 	fmt.Println("the id is: ", id)
 
