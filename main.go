@@ -267,20 +267,25 @@ func Question(c *fiber.Ctx) error {
 	var question models.Question
 	database.Database.Db.Where("id = ?", c.Params("id")).First(&question)
 
-	fmt.Println(question.TemplateCode)
-
-	// return the question to the user
-	switch language {
-	case "python":
-		return c.JSON(question.TemplateCode)
-	case "javascript":
-		return c.JSON(question.TemplateCode)
-	case "go":
-		return c.JSON(question.TemplateCode)
+	var templateCodeMap map[string]string
+	// parse the individual language from the 'TemplateCode' item
+	err := json.Unmarshal(question.TemplateCode, &templateCodeMap)
+	if err != nil {
+		fmt.Println("Error unmarshaling template code:", err)
+		return c.SendStatus(500)
 	}
 
-	return c.SendStatus(400)
+	code, exists := templateCodeMap[language]
+	if !exists {
+		fmt.Println("Language not found in template code")
+		return c.SendStatus(400)
+	}
 
+	response := map[string]string{
+		language: code,
+	}
+
+	return c.JSON(response)
 }
 
 func BugReport(c *fiber.Ctx) error {
