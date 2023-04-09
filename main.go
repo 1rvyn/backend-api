@@ -268,7 +268,17 @@ func Question(c *fiber.Ctx) error {
 	database.Database.Db.Where("id = ?", c.Params("id")).First(&question)
 
 	// return the question to the user
-	return c.JSON(question)
+	switch language {
+	case "python":
+		return c.JSON(question.TemplateCode[1])
+	case "javascript":
+		return c.JSON(question.TemplateCode[2])
+	case "go":
+		return c.JSON(question.TemplateCode[3])
+	}
+
+	return c.SendStatus(400)
+
 }
 
 func BugReport(c *fiber.Ctx) error {
