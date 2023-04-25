@@ -61,7 +61,7 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/register", Register)
 	app.Post("/login", Login)
 	app.Post("/user", getUser)
-	app.Get("/logout", Logout)
+	app.Post("/logout", Logout)
 	app.Get("/", Status)
 
 	app.Get("/submissions", getSubmissions)
@@ -806,31 +806,15 @@ func Logout(c *fiber.Ctx) error {
 	// delete the cookie
 	fmt.Println("\nlogout was called")
 
-	rcookie := c.Cookies("jwt")
-
-	fmt.Println("\nthe 'r' cookie is :", c.Cookies("jwt"))
-	// remove the session from redis
-
-	err := database.Redis.DeleteHMap(rcookie)
-	if err != nil {
+	// parse the string from the Post request
+	var data map[string]string
+	if err := c.BodyParser(&data); err != nil {
 		return err
-	} else {
-		fmt.Println("\nSuccessfully deleted the session from redis")
 	}
 
-	// set the cookie to expire
-	cookie := fiber.Cookie{
-		Name:     "jwt",
-		Value:    "",
-		Expires:  time.Now().Add(-time.Hour * 24),
-		HTTPOnly: true,
-		SameSite: "None",
-		Secure:   true,
-		Path:     "/",
-		Domain:   ".irvyn.xyz",
-	}
-	c.Cookie(&cookie) // this returns a cookie with the date that is expired
+	fmt.Println("\nthe data is :", data)
 
-	// redirect to the "/" page
-	return c.Redirect("https://irvyn.xyz", 200)
+	return c.JSON(fiber.Map{
+		"message": "successfully logged out",
+	})
 }
