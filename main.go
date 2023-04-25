@@ -816,6 +816,8 @@ func Logout(c *fiber.Ctx) error {
 
 	jwtValue := data["jwt"]
 
+	fmt.Println("\nthe jwtValue is :", jwtValue)
+
 	// delete the session from redis
 	err := database.Redis.DeleteHMap(jwtValue)
 	if err != nil {
