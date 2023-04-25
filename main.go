@@ -814,7 +814,13 @@ func Logout(c *fiber.Ctx) error {
 
 	fmt.Println("\nthe data is :", data)
 
-	return c.JSON(fiber.Map{
-		"message": "successfully logged out",
-	})
+	jwtValue := data["jwt"]
+
+	// delete the session from redis
+	err := database.Redis.DeleteHMap(jwtValue)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	} else {
+		return c.SendStatus(fiber.StatusOK)
+	}
 }
