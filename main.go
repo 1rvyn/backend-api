@@ -303,19 +303,19 @@ func Questionall(c *fiber.Ctx) error {
 func BugReport(c *fiber.Ctx) error {
 
 	// get the user from the cookie
-
-	// if they arent logged in / dont have a valid cookie then we will return a 401
-	cookie := c.Cookies("jwt")
-	if cookie == "" {
-		return c.SendStatus(401)
-	}
-
-	// get their session from redis -
-	// errors are handled in the function because my redis code is amazing
-	session, err := database.Redis.GetHMap(cookie)
-	if err != nil {
-		return err
-	}
+	//
+	//// if they arent logged in / dont have a valid cookie then we will return a 401
+	//cookie := c.Cookies("jwt")
+	//if cookie == "" {
+	//	return c.SendStatus(401)
+	//}
+	//
+	//// get their session from redis -
+	//// errors are handled in the function because my redis code is amazing
+	//session, err := database.Redis.GetHMap(cookie)
+	//if err != nil {
+	//	return err
+	//}
 
 	// get the body from the request
 	var body map[string]string
@@ -332,7 +332,7 @@ func BugReport(c *fiber.Ctx) error {
 
 	// create a new bug report
 	bug := models.Bug{
-		Email: session["email"],
+		//Email: session["email"],
 		Title: body["title"],
 		Body:  bugReport,
 	}
