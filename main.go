@@ -12,6 +12,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -91,9 +92,7 @@ func setupRoutes(app *fiber.App) {
 
 func Admin(c *fiber.Ctx) error {
 	// Get the cookie from the request
-	fmt.Println("Admin handler HIT")
-	fmt.Println(c.GetReqHeaders())
-	session, err := utils.GetSession(c)
+	session, err := utils.GetSession(c) // send the fiber.Ctx to session
 
 	if err != nil {
 		return err
@@ -106,7 +105,6 @@ func Admin(c *fiber.Ctx) error {
 	} else {
 		return c.SendStatus(403)
 	}
-
 }
 
 func Tested(c *fiber.Ctx) error {
@@ -175,7 +173,7 @@ func CreateQuestion(c *fiber.Ctx) error {
 			return err
 		}
 
-		if session == nil {
+		if session == nil || session["role"] != "2" {
 			return c.SendStatus(401)
 		}
 	}
@@ -739,6 +737,24 @@ func Register(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(&data); err != nil {
 		return err
+	}
+
+	// Validate email using a regex
+	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	matched, _ := regexp.MatchString(emailRegex, data["email"])
+	if !matched {
+		return c.JSON(fiber.Map{
+			"success": false,
+			"message": "Invalid email format",
+		})
+	}
+
+	// Validate password length
+	if len(data["password"]) < 6 {
+		return c.JSON(fiber.Map{
+			"success": false,
+			"message": "Invalid password",
+		})
 	}
 
 	existingUser := &models.Account{}

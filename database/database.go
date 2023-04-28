@@ -24,8 +24,6 @@ var dbname = os.Getenv("DB_NAME")
 var Database Dbinstance
 
 func ConnectDb() {
-	//psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=require", host, port, user, password, dbname)
-
 	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=require", host, port, user, password, dbname)
 
 	db, err := gorm.Open(postgres.Open(psqlconn), &gorm.Config{})
@@ -46,4 +44,5 @@ func ConnectDb() {
 	}
 
 	Database = Dbinstance{Db: db}
+
 }

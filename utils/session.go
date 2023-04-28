@@ -7,8 +7,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-//var SecretKey = os.Getenv("JWT_SECRET")
-
 func GetSession(c *fiber.Ctx) (map[string]string, error) {
 
 	jwt := c.Get("X-JWT")
