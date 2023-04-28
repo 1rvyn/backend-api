@@ -357,7 +357,7 @@ func getSubmissions(c *fiber.Ctx) error {
 
 	// get users submission from the submissions table
 	var submissions []models.Submission
-	if err := database.Database.Db.Where("user_id = ?", session["email"]).Find(&submissions).Error; err != nil {
+	if err := database.Database.Db.Where("user_id = ?", session["userID"]).Find(&submissions).Error; err != nil {
 		return c.SendStatus(401)
 	} else {
 		return c.JSON(submissions)
