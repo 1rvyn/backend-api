@@ -235,14 +235,10 @@ func VerifyAccount(c *fiber.Ctx) error {
 	if strconv.Itoa(user.EmailCode) == code {
 		// update the user
 		database.Database.Db.Model(&user).Update("verified", true)
-		return c.JSON("verified")
+		return c.Redirect("https://irvyn.xyz/login?message=successfully+verified+email")
+
 	}
-
-	// update the user
-	database.Database.Db.Model(&user).Update("verified", true)
-
-	return c.Redirect("https://irvyn.xyz/login?message=successfully+verified+email")
-
+	return c.Redirect("https://irvyn.xyz/login?message=failed+to+verify+email")
 }
 
 // TODO: Only allow the frontend fiber app to access this route
@@ -563,7 +559,6 @@ func sendCodeToFlaskAPI(url, code string) (string, error) {
 }
 
 func Status(c *fiber.Ctx) error {
-	// create a bunch of accounts
 
 	return c.SendString("Hello world 👋!")
 }
@@ -790,7 +785,7 @@ func Register(c *fiber.Ctx) error {
 	}
 	// since we have saved the user, we can now send them an email to verify their email address
 
-	err := utils.SendMail(user.Email)
+	err := utils.SendMail(user.Email, user.EmailCode)
 	if err != nil {
 		return err
 	}

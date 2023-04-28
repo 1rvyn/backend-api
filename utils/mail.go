@@ -10,29 +10,13 @@ import (
 	"time"
 )
 
-//func VerifyEmail(email string, code int) bool {
-//	// Email verification
-//	from := "irvynhall@gmail.com"
-//	subject := "Verify your email"
-//	body := "Your verification code is: " + strconv.Itoa(code)
-//	msg := "From: " + from + "\n" + "Subject: " + subject + "\n" + body
-//
-//	err := smtp.SendMail("smtp.gmail.com:587", smtp.PlainAuth("", from, "password", "smtp.gmail.com"), from, []string{email}, []byte(msg))
-//	if err != nil {
-//		return false
-//	} else {
-//		return true
-//	}
-//
-//}
-
-func SendMail(email string) error {
+func SendMail(email string, code int) error {
 	// send a verification email
 
 	fmt.Println("mailgun verification sending...")
 
-	var mgDomain string = "api.irvyn.xyz"
-	var mgApiKey string = os.Getenv("MAILGUN_API_KEY")
+	var mgDomain = "api.irvyn.xyz"
+	var mgApiKey = os.Getenv("MAILGUN_API_KEY")
 	mg := mailgun.NewMailgun(mgDomain, mgApiKey)
 
 	mg.SetAPIBase("https://api.eu.mailgun.net/v3")
@@ -40,7 +24,7 @@ func SendMail(email string) error {
 	// Build the email message
 	from := "verifcation@irvyn.xyz"
 	subject := "Account E-mail Verification"
-	body := "Please confirm your email address by clicking the link below: \n\n https://api.irvyn.xyz/verify?code=" + strconv.Itoa(GenerateVerficiationCode()) + "&email=" + email
+	body := "Please confirm your email address by clicking the link below: \n\n https://api.irvyn.xyz/verify?code=" + strconv.Itoa(code) + "&email=" + email
 
 	message := mg.NewMessage(from, subject, body, email)
 
